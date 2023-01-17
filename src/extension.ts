@@ -3,10 +3,16 @@
 import * as vscode from "vscode";
 
 import { register as registerCompletions } from "./importCompletionProvider";
+import { register as registerHover } from "./importHoverProvider";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  const workspace = vscode.workspace.workspaceFolders?.[0];
+  if (!workspace) {
+    return;
+  }
+
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log(
@@ -22,10 +28,10 @@ export function activate(context: vscode.ExtensionContext) {
   // 	vscode.window.showInformationMessage('Hello World from Z-Wave JS Config Editor!');
   // });
 
-  const completions = registerCompletions(context);
-  if (completions) {
-    context.subscriptions.push(completions);
-  }
+  context.subscriptions.push(
+    registerCompletions(workspace, context),
+    registerHover(workspace, context)
+  );
 }
 
 // This method is called when your extension is deactivated

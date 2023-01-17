@@ -1,19 +1,12 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import { readJSON, resolveTemplateFile } from "./shared";
 
-import * as JSON5 from "json5";
-
-const configRoot = "packages/config/config/devices";
-
-const masterTemplateFilename = "templates/master_template.json";
-
-export function register(context: vscode.ExtensionContext) {
-  const workspace = vscode.workspace.workspaceFolders?.[0];
-  if (!workspace) {
-    return;
-  }
-
+export function register(
+  workspace: vscode.WorkspaceFolder,
+  context: vscode.ExtensionContext
+) {
   return vscode.languages.registerCompletionItemProvider(
     {
       language: "jsonc",
@@ -28,10 +21,12 @@ export function register(context: vscode.ExtensionContext) {
           .lineAt(position.line)
           .text.substring(0, position.character)
           .trimStart();
+        const currentLineSuffix = document
+          .lineAt(position.line)
+          .text.substring(position.character)
+          .trimEnd();
 
         const ret: vscode.CompletionItem[] = [];
-
-        console.debug("currentLine", currentLinePrefix);
 
         if (
           currentLinePrefix.startsWith(`"$import":`) &&
@@ -42,54 +37,39 @@ export function register(context: vscode.ExtensionContext) {
             currentLinePrefix.lastIndexOf('"') + 1
           );
           const [filename, importSpecifier] = filenameAndImport.split("#");
-          const actualFilename =
-            filename === "~/templates/master_template.json"
-              ? masterTemplateFilename
-              : filename;
+          const uri = resolveTemplateFile(workspace, filename);
 
           try {
-            const uri = vscode.Uri.joinPath(
-              workspace.uri,
-              configRoot,
-              actualFilename
-            );
-            const fileContentRaw = await vscode.workspace.fs.readFile(uri);
-            const fileContentString =
-              Buffer.from(fileContentRaw).toString("utf8");
-            const fileContent = JSON5.parse(fileContentString);
+            const fileContent = await readJSON(uri);
 
             const importSuggestions = Object.entries<Record<string, any>>(
               fileContent
-            ).map(([key, $import]) => {
-              const label = $import.$label ?? key;
-              const detail = $import.$label ? key : undefined;
-              let documentation = `\`\`\`json
-${JSON.stringify(fileContent[key], null, 2)}
+            ).map(
+              ([key, { $label: label = key, $description, ...$import }]) => {
+                let documentation = `\`\`\`json
+${JSON.stringify($import, null, 2)}
 \`\`\``;
-              if ("$description" in $import) {
-                documentation = $import.$description + "\n\n" + documentation;
-              }
-              documentation = `**${label}**\n\n` + documentation;
+                if ($description) {
+                  documentation = $description + "\n\n" + documentation;
+                }
 
-              if (key === "base_enable_disable") {
-                console.dir({ key, label, detail, documentation });
+                const completionItem: vscode.CompletionItem =
+                  new vscode.CompletionItem(
+                    key, // Not sure why, but this CANNOT be $label or the item will disappear
+                    vscode.CompletionItemKind.Snippet
+                  );
+                completionItem.detail = label;
+                completionItem.insertText = key;
+                completionItem.documentation = new vscode.MarkdownString(
+                  documentation
+                );
+                completionItem.range = new vscode.Range(
+                  position.translate(0, -importSpecifier.length),
+                  position
+                );
+                return completionItem;
               }
-
-              const completionItem = new vscode.CompletionItem(
-                label,
-                vscode.CompletionItemKind.Snippet
-              );
-              completionItem.detail = detail;
-              completionItem.insertText = key;
-              completionItem.documentation = new vscode.MarkdownString(
-                documentation
-              );
-              completionItem.range = new vscode.Range(
-                position.translate(0, -importSpecifier.length),
-                position
-              );
-              return completionItem;
-            });
+            );
 
             ret.push(...importSuggestions);
           } catch (e) {
@@ -119,12 +99,14 @@ ${JSON.stringify(fileContent[key], null, 2)}
             importMasterTemplate.sortText = "$import$0master";
 
             // Put a comma after the import
-            importMasterTemplate.additionalTextEdits = [
-              vscode.TextEdit.insert(
-                position.translate(0, importMasterTemplate.sortText.length),
-                ","
-              ),
-            ];
+            if (!currentLineSuffix.includes(",")) {
+              importMasterTemplate.additionalTextEdits = [
+                vscode.TextEdit.insert(
+                  position.translate(0, importMasterTemplate.sortText.length),
+                  ","
+                ),
+              ];
+            }
 
             // Trigger completions again, so an import can be chosen from the selected file
             importMasterTemplate.command = {
