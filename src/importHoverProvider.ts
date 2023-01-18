@@ -1,6 +1,11 @@
 import * as vscode from "vscode";
 
-import { readJSON, resolveTemplateFile } from "./shared";
+import {
+  getImportSpecifierFromLine,
+  readJSON,
+  resolveTemplate,
+  resolveTemplateFile,
+} from "./shared";
 
 export function register(
   workspace: vscode.WorkspaceFolder,
@@ -17,27 +22,22 @@ export function register(
     {
       async provideHover(document, position, token) {
         let line = document.lineAt(position.line).text.trim();
-        if (!line.startsWith(`"$import":`)) {
+
+        const imp = getImportSpecifierFromLine(line);
+        if (!imp) {
           return undefined;
         }
 
-        line = line.substring(line.indexOf(":") + 1).trim();
-        line = line.substring(line.indexOf('"') + 1);
-        line = line.substring(0, line.indexOf('"'));
-        if (!line.includes(".json#")) {
+        const template = await resolveTemplate(
+          workspace,
+          imp.filename,
+          imp.importSpecifier
+        );
+        if (!template) {
           return undefined;
         }
 
-        const [filename, importSpecifier] = line.split("#");
-        const uri = resolveTemplateFile(workspace, filename);
-
-        const fileContent = await readJSON(uri);
-        const $import = fileContent[importSpecifier];
-        if (!$import) {
-          return undefined;
-        }
-
-        const { $label, $description, ...$definition } = $import;
+        const { $label, $description, ...$definition } = template;
 
         let documentation = `\`\`\`json
 ${JSON.stringify($definition, null, 2)}

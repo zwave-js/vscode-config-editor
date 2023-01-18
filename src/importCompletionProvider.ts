@@ -1,7 +1,11 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
-import { readJSON, resolveTemplateFile } from "./shared";
+import {
+  getImportSpecifierFromLine,
+  readJSON,
+  resolveTemplateFile,
+} from "./shared";
 
 export function register(
   workspace: vscode.WorkspaceFolder,
@@ -28,16 +32,11 @@ export function register(
 
         const ret: vscode.CompletionItem[] = [];
 
-        if (
-          currentLinePrefix.startsWith(`"$import":`) &&
-          currentLinePrefix.includes(`.json#`)
-        ) {
+        const imp = getImportSpecifierFromLine(currentLinePrefix);
+
+        if (imp) {
           // We're in the import specifier, return valid imports
-          const filenameAndImport = currentLinePrefix.substring(
-            currentLinePrefix.lastIndexOf('"') + 1
-          );
-          const [filename, importSpecifier] = filenameAndImport.split("#");
-          const uri = resolveTemplateFile(workspace, filename);
+          const uri = resolveTemplateFile(workspace, imp.filename);
 
           try {
             const fileContent = await readJSON(uri);
@@ -64,7 +63,7 @@ ${JSON.stringify($import, null, 2)}
                   documentation
                 );
                 completionItem.range = new vscode.Range(
-                  position.translate(0, -importSpecifier.length),
+                  position.translate(0, -imp.importSpecifier.length),
                   position
                 );
                 return completionItem;
