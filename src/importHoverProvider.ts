@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import {
+  formatTemplateDefinition,
   getImportSpecifierFromLine,
   readJSON,
   resolveTemplate,
@@ -31,7 +32,7 @@ export function register(
         const template = await resolveTemplate(
           workspace,
           imp.filename,
-          imp.importSpecifier
+          imp.templateKey
         );
         if (!template) {
           return undefined;
@@ -39,15 +40,11 @@ export function register(
 
         const { $label, $description, ...$definition } = template;
 
-        let documentation = `\`\`\`json
-${JSON.stringify($definition, null, 2)}
-\`\`\``;
-        if ($description) {
-          documentation = $description + "\n\n" + documentation;
-        }
-        if ($label) {
-          documentation = `**${$label}**\n\n${documentation}`;
-        }
+        let documentation = formatTemplateDefinition(
+          $definition,
+          $label,
+          $description
+        );
 
         return {
           contents: [new vscode.MarkdownString(documentation)],

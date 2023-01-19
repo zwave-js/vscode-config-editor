@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as JSON5 from "json5";
+import { ASTNode, PropertyASTNode } from "vscode-json-languageservice";
 
 export const configRoot = "packages/config/config/devices";
 
@@ -22,10 +23,15 @@ export function resolveTemplateFile(
   return vscode.Uri.joinPath(workspace.uri, actualFilename);
 }
 
+export interface ImportSpecifier {
+  filename: string;
+  templateKey: string;
+}
+
 export function getImportSpecifierFromLine(line: string):
   | {
       filename: string;
-      importSpecifier: string;
+      templateKey: string;
     }
   | undefined {
   line = line.trim();
@@ -43,8 +49,19 @@ export function getImportSpecifierFromLine(line: string):
     return undefined;
   }
 
-  const [filename, importSpecifier] = line.split("#");
-  return { filename, importSpecifier };
+  const [filename, templateKey] = line.split("#");
+  return { filename, templateKey };
+}
+
+export function parseImportSpecifier(
+  value: string
+): ImportSpecifier | undefined {
+  if (!value.includes(".json#")) {
+    return undefined;
+  }
+
+  const [filename, templateKey] = value.split("#");
+  return { filename, templateKey };
 }
 
 export async function resolveTemplate(
@@ -110,4 +127,28 @@ export function getBlockRange(
     new vscode.Position(start, getLineIndentation(lines[start]).length),
     new vscode.Position(end, getLineIndentation(lines[end]).length + 1)
   );
+}
+
+export function nodeIsPropertyName(
+  node: ASTNode | undefined
+): node is ASTNode & { parent: PropertyASTNode } {
+  return node?.parent?.type === "property" && node === node.parent.keyNode;
+}
+
+export function nodeIsPropertyValue(
+  node: ASTNode | undefined
+): node is ASTNode & { parent: PropertyASTNode } {
+  return node?.parent?.type === "property" && node === node.parent.valueNode;
+}
+
+export function nodeIsPropertyNameOrValue(
+  node: ASTNode | undefined
+): node is ASTNode & { parent: PropertyASTNode } {
+  return node?.parent?.type === "property";
+}
+
+export function getPropertyNameFromNode(
+  node: ASTNode & { parent: PropertyASTNode }
+): string {
+  return node.parent.keyNode.value;
 }
