@@ -5,6 +5,7 @@ import {
 	Location,
 	PropertyASTNode,
 } from "vscode-json-languageservice";
+import { readJsonWithTemplate } from "./JsonTemplate";
 
 export const configRoot = "packages/config/config/devices";
 
@@ -136,7 +137,10 @@ export async function resolveTemplate(
 	importSpecifier: string,
 ): Promise<Record<string, any> | undefined> {
 	const uri = resolveTemplateFile(workspace, from, filename);
-	const fileContent = await readJSON(uri);
+	const fileContent: Record<string, any> = await readJsonWithTemplate(
+		workspace,
+		uri.fsPath,
+	);
 	return fileContent[importSpecifier];
 }
 
