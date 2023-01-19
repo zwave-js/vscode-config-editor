@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 
 import {
 	formatTemplateDefinition,
+	getConfigFileDocumentSelector,
 	getImportSpecifierFromLine,
 	resolveTemplate,
 } from "./shared";
@@ -11,13 +12,7 @@ export function register(
 	context: vscode.ExtensionContext,
 ) {
 	return vscode.languages.registerHoverProvider(
-		{
-			language: "jsonc",
-			pattern: new vscode.RelativePattern(
-				workspace.uri,
-				"packages/config/config/devices/*/*.json",
-			),
-		},
+		getConfigFileDocumentSelector(workspace),
 		{
 			async provideHover(document, position, token) {
 				let line = document.lineAt(position.line).text.trim();
@@ -29,6 +24,7 @@ export function register(
 
 				const template = await resolveTemplate(
 					workspace,
+					document.uri,
 					imp.filename,
 					imp.templateKey,
 				);

@@ -2,10 +2,11 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 
-import { register as registerCodeLensProvider } from "./importCodeLensProvider";
+import { register as registerCodeLenses } from "./importCodeLensProvider";
 import { register as registerCompletions } from "./importCompletionProvider";
 import { register as registerGoToDefinition } from "./importGoToDefinitionProvider";
 import { register as registerHover } from "./importHoverProvider";
+import { register as registerReferences } from "./templateReferencesProvider";
 
 import { getLanguageService as getJsonLanguageService } from "vscode-json-languageservice";
 
@@ -42,7 +43,8 @@ export function activate(context: vscode.ExtensionContext) {
 		registerCompletions(workspace, context, ls),
 		registerHover(workspace, context),
 		registerGoToDefinition(workspace, context, ls),
-		registerCodeLensProvider(workspace, context, ls),
+		registerCodeLenses(workspace, context, ls),
+		registerReferences(workspace, context, ls),
 	);
 }
 

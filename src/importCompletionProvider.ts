@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { LanguageService as JsonLanguageService } from "vscode-json-languageservice";
 import {
 	formatTemplateDefinition,
+	getConfigFileDocumentSelector,
 	nodeIsPropertyName,
 	nodeIsPropertyValue,
 	parseImportSpecifier,
@@ -21,58 +22,10 @@ export function register(
 	ls: JsonLanguageService,
 ) {
 	return vscode.languages.registerCompletionItemProvider(
-		{
-			language: "jsonc",
-			pattern: new vscode.RelativePattern(
-				workspace.uri,
-				"packages/config/config/devices/*/*.json",
-			),
-		},
+		getConfigFileDocumentSelector(workspace),
 		{
 			async provideCompletionItems(document, position, token, context) {
-				const currentLinePrefix = document
-					.lineAt(position.line)
-					.text.substring(0, position.character)
-					.trimStart();
-				const currentLineSuffix = document
-					.lineAt(position.line)
-					.text.substring(position.character)
-					.trimEnd();
-
 				const ret: vscode.CompletionItem[] = [];
-
-				// const importMasterTemplate = new vscode.CompletionItem(
-				//   "Import from master template",
-				//   vscode.CompletionItemKind.Folder
-				// );
-				// importMasterTemplate.insertText = masterTemplateImport.substring(
-				//   currentLinePrefix.length
-				// );
-				// console.log("insertText: ", importMasterTemplate.insertText);
-				// // Avoid partial overwrites in the current line
-				// importMasterTemplate.range = new vscode.Range(position, position);
-				// console.log(
-				//   `completion range: ${importMasterTemplate.range.start.line}@${importMasterTemplate.range.start.character} to ${importMasterTemplate.range.end.line}@${importMasterTemplate.range.end.character}`
-				// );
-				// // Try putting the snippet at the front
-				// importMasterTemplate.sortText = "$import$0master";
-
-				// // Put a comma after the import
-				// if (!currentLineSuffix.includes(",")) {
-				//   importMasterTemplate.additionalTextEdits = [
-				//     vscode.TextEdit.insert(
-				//       position.translate(0, importMasterTemplate.sortText.length),
-				//       ","
-				//     ),
-				//   ];
-				// }
-
-				// // Trigger completions again, so an import can be chosen from the selected file
-				// importMasterTemplate.command = {
-				//   command: "editor.action.triggerSuggest",
-				//   title: "Re-trigger completions...",
-				// };
-				// ret.push(importMasterTemplate);
 
 				const jsonDoc = ls.parseJSONDocument(document as any);
 				const node = jsonDoc.getNodeFromOffset(
@@ -143,6 +96,7 @@ export function register(
 						// Suggest valid templates from the selected file
 						const uri = resolveTemplateFile(
 							workspace,
+							document.uri,
 							spec.filename,
 						);
 						const fileContent = await readJSON(uri);

@@ -5,6 +5,7 @@ import {
 } from "vscode-json-languageservice";
 
 import {
+	getConfigFileDocumentSelector,
 	nodeIsPropertyNameOrValue,
 	parseImportSpecifier,
 	rangeFromNode,
@@ -46,13 +47,7 @@ export function register(
 	);
 
 	return vscode.languages.registerCodeLensProvider(
-		{
-			language: "jsonc",
-			pattern: new vscode.RelativePattern(
-				workspace.uri,
-				"packages/config/config/devices/*/*.json",
-			),
-		},
+		getConfigFileDocumentSelector(workspace),
 		{
 			async provideCodeLenses(document, token) {
 				const textDoc = TextDocument.create(
@@ -95,6 +90,7 @@ export function register(
 					try {
 						const template = await resolveTemplate(
 							workspace,
+							document.uri,
 							spec.filename,
 							spec.templateKey,
 						);

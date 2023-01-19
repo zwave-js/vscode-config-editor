@@ -5,6 +5,7 @@ import {
 } from "vscode-json-languageservice";
 
 import {
+	getConfigFileDocumentSelector,
 	getImportSpecifierFromLine,
 	readTextFile,
 	resolveTemplateFile,
@@ -16,13 +17,7 @@ export function register(
 	ls: JsonLanguageService,
 ) {
 	return vscode.languages.registerDefinitionProvider(
-		{
-			language: "jsonc",
-			pattern: new vscode.RelativePattern(
-				workspace.uri,
-				"packages/config/config/devices/*/*.json",
-			),
-		},
+		getConfigFileDocumentSelector(workspace),
 		{
 			async provideDefinition(document, position, token) {
 				// Provide definitions for "$import" directives
@@ -33,7 +28,11 @@ export function register(
 					return undefined;
 				}
 
-				const file = resolveTemplateFile(workspace, imp.filename);
+				const file = resolveTemplateFile(
+					workspace,
+					document.uri,
+					imp.filename,
+				);
 				if (!file) {
 					return undefined;
 				}

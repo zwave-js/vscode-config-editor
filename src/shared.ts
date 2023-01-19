@@ -8,6 +8,60 @@ import {
 
 export const configRoot = "packages/config/config/devices";
 
+export function getConfigFileDocumentSelector(
+	workspace: vscode.WorkspaceFolder,
+): vscode.DocumentFilter {
+	return {
+		language: "jsonc",
+		pattern: new vscode.RelativePattern(
+			workspace.uri,
+			"packages/config/config/devices/*/*.json",
+		),
+	};
+}
+
+export function getTemplateDocumentSelector(
+	workspace: vscode.WorkspaceFolder,
+): vscode.DocumentFilter[] {
+	return [
+		{
+			language: "jsonc",
+			pattern: new vscode.RelativePattern(
+				workspace.uri,
+				"packages/config/config/devices/templates/*.json",
+			),
+		},
+		{
+			language: "jsonc",
+			pattern: new vscode.RelativePattern(
+				workspace.uri,
+				"packages/config/config/devices/*/templates/*.json",
+			),
+		},
+	];
+}
+
+export async function findConfigFiles(
+	workspace: vscode.WorkspaceFolder,
+	deviceFiles: boolean,
+	templateFiles: boolean,
+): Promise<vscode.Uri[]> {
+	const ret: vscode.Uri[] = [];
+	if (deviceFiles) {
+		ret.push(
+			...(await vscode.workspace.findFiles(
+				getConfigFileDocumentSelector(workspace).pattern!,
+			)),
+		);
+	}
+	if (templateFiles) {
+		for (const filter of getTemplateDocumentSelector(workspace)) {
+			ret.push(...(await vscode.workspace.findFiles(filter.pattern!)));
+		}
+	}
+	return ret;
+}
+
 export async function readJSON(uri: vscode.Uri): Promise<Record<string, any>> {
 	const fileContentRaw = await vscode.workspace.fs.readFile(uri);
 	const fileContentString = Buffer.from(fileContentRaw).toString("utf8");
@@ -21,10 +75,17 @@ export async function readTextFile(uri: vscode.Uri): Promise<string> {
 
 export function resolveTemplateFile(
 	workspace: vscode.WorkspaceFolder,
+	from: vscode.Uri,
 	filename: string,
 ): vscode.Uri {
-	const actualFilename = filename.replace(/^~\//, configRoot + "/");
-	return vscode.Uri.joinPath(workspace.uri, actualFilename);
+	if (filename.startsWith("~")) {
+		// "absolute" URL
+		const actualFilename = filename.replace(/^~\//, configRoot + "/");
+		return vscode.Uri.joinPath(workspace.uri, actualFilename);
+	} else {
+		// relative URL
+		return vscode.Uri.joinPath(from, "..", filename);
+	}
 }
 
 export interface ImportSpecifier {
@@ -70,10 +131,11 @@ export function parseImportSpecifier(
 
 export async function resolveTemplate(
 	workspace: vscode.WorkspaceFolder,
+	from: vscode.Uri,
 	filename: string,
 	importSpecifier: string,
 ): Promise<Record<string, any> | undefined> {
-	const uri = resolveTemplateFile(workspace, filename);
+	const uri = resolveTemplateFile(workspace, from, filename);
 	const fileContent = await readJSON(uri);
 	return fileContent[importSpecifier];
 }
