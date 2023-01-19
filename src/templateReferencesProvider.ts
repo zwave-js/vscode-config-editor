@@ -40,7 +40,6 @@ export function register(
 					!node.parent.parent.parent
 				) {
 					const templateName = getPropertyNameFromNode(node);
-					console.log("Looking for references to", templateName);
 
 					const configFiles = await findConfigFiles(
 						workspace,
