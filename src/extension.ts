@@ -2,45 +2,48 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 
+import { register as registerCodeLensProvider } from "./importCodeLensProvider";
 import { register as registerCompletions } from "./importCompletionProvider";
-import { register as registerHover } from "./importHoverProvider";
 import { register as registerGoToDefinition } from "./importGoToDefinitionProvider";
+import { register as registerHover } from "./importHoverProvider";
+
 import { getLanguageService as getJsonLanguageService } from "vscode-json-languageservice";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-  const workspace = vscode.workspace.workspaceFolders?.[0];
-  if (!workspace) {
-    return;
-  }
+	const workspace = vscode.workspace.workspaceFolders?.[0];
+	if (!workspace) {
+		return;
+	}
 
-  const ls = getJsonLanguageService({});
-  ls.configure({
-    allowComments: true,
-    validate: true,
-  });
+	const ls = getJsonLanguageService({});
+	ls.configure({
+		allowComments: true,
+		validate: true,
+	});
 
-  // // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // // This line of code will only be executed once when your extension is activated
-  // console.log(
-  //   'Congratulations, your extension "zwave-js-config-editor" is now active!'
-  // );
+	// // Use the console to output diagnostic information (console.log) and errors (console.error)
+	// // This line of code will only be executed once when your extension is activated
+	// console.log(
+	//   'Congratulations, your extension "zwave-js-config-editor" is now active!'
+	// );
 
-  // // The command has been defined in the package.json file
-  // // Now provide the implementation of the command with registerCommand
-  // // The commandId parameter must match the command field in package.json
-  // let disposable = vscode.commands.registerCommand('zwave-js-config-editor.helloWorld', () => {
-  // 	// The code you place here will be executed every time your command is executed
-  // 	// Display a message box to the user
-  // 	vscode.window.showInformationMessage('Hello World from Z-Wave JS Config Editor!');
-  // });
+	// // The command has been defined in the package.json file
+	// // Now provide the implementation of the command with registerCommand
+	// // The commandId parameter must match the command field in package.json
+	// let disposable = vscode.commands.registerCommand('zwave-js-config-editor.helloWorld', () => {
+	// 	// The code you place here will be executed every time your command is executed
+	// 	// Display a message box to the user
+	// 	vscode.window.showInformationMessage('Hello World from Z-Wave JS Config Editor!');
+	// });
 
-  context.subscriptions.push(
-    registerCompletions(workspace, context, ls),
-    registerHover(workspace, context),
-    registerGoToDefinition(workspace, context, ls)
-  );
+	context.subscriptions.push(
+		registerCompletions(workspace, context, ls),
+		registerHover(workspace, context),
+		registerGoToDefinition(workspace, context, ls),
+		registerCodeLensProvider(workspace, context, ls),
+	);
 }
 
 // This method is called when your extension is deactivated
