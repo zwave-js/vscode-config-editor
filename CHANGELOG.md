@@ -4,5 +4,5 @@
 -->
 
 # Changelog
-## __WORK IN PROGRESS__
+## 0.0.3 (2023-01-20)
 * Initial release
