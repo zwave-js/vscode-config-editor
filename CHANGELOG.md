@@ -1,9 +1,8 @@
-# Change Log
+<!--
+	Placeholder for next versions:
+	## __WORK IN PROGRESS__
+-->
 
-All notable changes to the "zwave-js-config-editor" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+# Changelog
+## __WORK IN PROGRESS__
+* Initial release

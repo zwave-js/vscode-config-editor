@@ -1,5 +1,6 @@
 {
-  "name": "zwave-js-config-editor",
+  "publisher": "zwave-js",
+  "name": "config-editor",
   "displayName": "Z-Wave JS Config Editor",
   "description": "Editor support for authoring Z-Wave JS device configuration files",
   "version": "0.0.2",
@@ -13,23 +14,18 @@
     "onLanguage:jsonc"
   ],
   "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "zwave-js-config-editor.helloWorld",
-        "title": "Hello World"
-      }
-    ]
-  },
+  "contributes": {},
   "scripts": {
     "vscode:prepublish": "npm run build",
     "build": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run build && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "release": "release-script"
   },
   "devDependencies": {
+    "@alcalzone/release-script": "~3.5.9",
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
