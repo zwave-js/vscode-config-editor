@@ -17,14 +17,14 @@ export function register(
 	workspace: vscode.WorkspaceFolder,
 	context: vscode.ExtensionContext,
 	ls: JsonLanguageService,
-) {
+): vscode.Disposable {
 	return vscode.languages.registerCodeActionsProvider(
 		[
 			getConfigFileDocumentSelector(workspace),
 			...getTemplateDocumentSelector(workspace),
 		],
 		{
-			async provideCodeActions(document, range, context, token) {
+			async provideCodeActions(document, range, _context, _token) {
 				const textDoc = TextDocument.create(
 					document.uri.toString(),
 					"jsonc",

@@ -133,10 +133,9 @@ async function readJsonWithTemplateInternal(
 	const relativeToRoot = path.relative(rootDir.fsPath, filename);
 	if (relativeToRoot.startsWith("..")) {
 		throw new Error(
-			`Tried to import config file "${filename}" outside of root directory "${rootDir}"!${getImportStack(
-				visited,
-				selector,
-			)}`,
+			`Tried to import config file "${filename}" outside of root directory "${
+				rootDir.fsPath
+			}"!${getImportStack(visited, selector)}`,
 		);
 	}
 

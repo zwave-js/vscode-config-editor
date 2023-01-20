@@ -9,13 +9,13 @@ import {
 
 export function register(
 	workspace: vscode.WorkspaceFolder,
-	context: vscode.ExtensionContext,
-) {
+	_context: vscode.ExtensionContext,
+): vscode.Disposable {
 	return vscode.languages.registerHoverProvider(
 		getConfigFileDocumentSelector(workspace),
 		{
-			async provideHover(document, position, token) {
-				let line = document.lineAt(position.line).text.trim();
+			async provideHover(document, position, _token) {
+				const line = document.lineAt(position.line).text.trim();
 
 				const imp = getImportSpecifierFromLine(line);
 				if (!imp) {
@@ -34,7 +34,7 @@ export function register(
 
 				const { $label, $description, ...$definition } = template;
 
-				let documentation = formatTemplateDefinition(
+				const documentation = formatTemplateDefinition(
 					$definition,
 					$label,
 					$description,

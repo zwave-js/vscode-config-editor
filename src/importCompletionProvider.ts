@@ -27,11 +27,11 @@ export function register(
 	workspace: vscode.WorkspaceFolder,
 	context: vscode.ExtensionContext,
 	ls: JsonLanguageService,
-) {
+): vscode.Disposable {
 	return vscode.languages.registerCompletionItemProvider(
 		getConfigFileDocumentSelector(workspace),
 		{
-			async provideCompletionItems(document, position, token, context) {
+			async provideCompletionItems(document, position, _token, _context) {
 				const ret: vscode.CompletionItem[] = [];
 
 				const jsonDoc = ls.parseJSONDocument(document as any);
@@ -215,7 +215,7 @@ export function register(
 										...$import
 									},
 								]) => {
-									let documentation =
+									const documentation =
 										formatTemplateDefinition(
 											$import,
 											undefined,

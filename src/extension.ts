@@ -12,7 +12,7 @@ import { getLanguageService as getJsonLanguageService } from "vscode-json-langua
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
 	const workspace = vscode.workspace.workspaceFolders?.[0];
 	if (!workspace) {
 		return;
@@ -49,4 +49,5 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export function deactivate(): void {}

@@ -18,11 +18,11 @@ export function register(
 	workspace: vscode.WorkspaceFolder,
 	context: vscode.ExtensionContext,
 	ls: JsonLanguageService,
-) {
+): vscode.Disposable {
 	return vscode.languages.registerReferenceProvider(
 		getTemplateDocumentSelector(workspace),
 		{
-			async provideReferences(document, position, context, token) {
+			async provideReferences(document, position, _context, _token) {
 				const templateFilename = document.uri.toString();
 
 				const jsonDoc = ls.parseJSONDocument(document as any);

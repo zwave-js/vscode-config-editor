@@ -15,11 +15,11 @@ export function register(
 	workspace: vscode.WorkspaceFolder,
 	context: vscode.ExtensionContext,
 	ls: JsonLanguageService,
-) {
+): vscode.Disposable {
 	return vscode.languages.registerDefinitionProvider(
 		getConfigFileDocumentSelector(workspace),
 		{
-			async provideDefinition(document, position, token) {
+			async provideDefinition(document, position, _token) {
 				// Provide definitions for "$import" directives
 				const line = document.lineAt(position.line).text;
 
