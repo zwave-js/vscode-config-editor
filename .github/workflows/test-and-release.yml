@@ -76,5 +76,14 @@ jobs:
     - name: Install vsce
       run: npm install -g @vscode/vsce
 
-    - name: Publish to the Marketplace
-      run: vsce publish -p ${{ secrets.MARKETPLACE_TOKEN }}
+    - name: Publish to the Open VSX Registry
+      uses: HaaLeo/publish-vscode-extension@v1.2.0
+      id: publishToOpenVSX
+      with:
+        pat: ${{ secrets.OPEN_VSX_TOKEN }}
+    - name: Publish to the Visual Studio Marketplace
+      uses: HaaLeo/publish-vscode-extension@v1.2.0
+      with:
+        pat: ${{ secrets.MARKETPLACE_TOKEN }}
+        registryUrl: https://marketplace.visualstudio.com
+        extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
