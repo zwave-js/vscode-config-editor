@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { My } from "./my";
 
 import {
 	formatTemplateDefinition,
@@ -7,10 +8,7 @@ import {
 	resolveTemplate,
 } from "./shared";
 
-export function register(
-	workspace: vscode.WorkspaceFolder,
-	_context: vscode.ExtensionContext,
-): vscode.Disposable {
+export function register({ workspace }: My): vscode.Disposable {
 	return vscode.languages.registerHoverProvider(
 		getConfigFileDocumentSelector(workspace),
 		{

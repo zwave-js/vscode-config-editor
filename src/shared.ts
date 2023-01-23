@@ -3,9 +3,12 @@ import * as vscode from "vscode";
 import {
 	ASTNode,
 	Location,
+	Position,
 	PropertyASTNode,
+	Range,
 } from "vscode-json-languageservice";
 import { readJsonWithTemplate } from "./JsonTemplate";
+import { My } from "./my";
 
 export const configRoot = "packages/config/config/devices";
 
@@ -223,6 +226,12 @@ export function getPropertyNameFromNode(
 	return node.parent.keyNode.value;
 }
 
+export function getPropertyValueFromNode(
+	node: ASTNode & { parent: PropertyASTNode },
+): string | number | boolean | null | undefined {
+	return node.parent.valueNode?.value;
+}
+
 export function rangeFromNodeLocation(location: Location): vscode.Range {
 	return new vscode.Range(
 		location.range.start.line,
@@ -239,4 +248,58 @@ export function rangeFromNode(
 	const start = document.positionAt(node.offset);
 	const end = document.positionAt(node.offset + node.length);
 	return new vscode.Range(start, end);
+}
+
+export function reactToActiveEditorChanges(
+	{ context }: My,
+	handler: (editor: vscode.TextEditor | undefined) => void,
+	throttleIntervalMs: number = 250,
+): void {
+	let timeout: NodeJS.Timer | undefined = undefined;
+	let activeEditor = vscode.window.activeTextEditor;
+
+	function triggerHandler(throttle = false) {
+		if (timeout) {
+			clearTimeout(timeout);
+			timeout = undefined;
+		}
+		if (throttle) {
+			timeout = setTimeout(handler, throttleIntervalMs, activeEditor);
+		} else {
+			handler(activeEditor);
+		}
+	}
+
+	if (activeEditor) {
+		triggerHandler();
+	}
+
+	vscode.window.onDidChangeActiveTextEditor(
+		(editor) => {
+			activeEditor = editor;
+			if (editor) {
+				triggerHandler();
+			}
+		},
+		null,
+		context.subscriptions,
+	);
+
+	vscode.workspace.onDidChangeTextDocument(
+		(event) => {
+			if (activeEditor && event.document === activeEditor.document) {
+				triggerHandler(true);
+			}
+		},
+		null,
+		context.subscriptions,
+	);
+}
+
+export function j2vPos(position: Position): vscode.Position {
+	return new vscode.Position(position.line, position.character);
+}
+
+export function j2vRange(range: Range): vscode.Range {
+	return new vscode.Range(j2vPos(range.start), j2vPos(range.end));
 }

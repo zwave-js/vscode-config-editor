@@ -1,14 +1,18 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
+import { getLanguageService as getJsonLanguageService } from "vscode-json-languageservice";
 
 import { register as registerCompletions } from "./importCompletionProvider";
 import { register as registerGoToDefinition } from "./importGoToDefinitionProvider";
 import { register as registerHover } from "./importHoverProvider";
+import { register as registerImportOverwriteDecorator } from "./importOverwriteDecoratorProvider";
 import { register as registerInlineImportCodeAction } from "./inlineImportCodeActionProvider";
 import { register as registerReferences } from "./templateReferencesProvider";
 
-import { getLanguageService as getJsonLanguageService } from "vscode-json-languageservice";
+import { enableConfigDocumentCache } from "./configDocument";
+import { registerDiagnosticsProvider } from "./diagnostics/provider";
+import { My } from "./my";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -23,6 +27,9 @@ export function activate(context: vscode.ExtensionContext): void {
 		allowComments: true,
 		validate: true,
 	});
+
+	const my = new My(workspace, context, ls);
+	enableConfigDocumentCache(my);
 
 	// // Use the console to output diagnostic information (console.log) and errors (console.error)
 	// // This line of code will only be executed once when your extension is activated
@@ -40,11 +47,13 @@ export function activate(context: vscode.ExtensionContext): void {
 	// });
 
 	context.subscriptions.push(
-		registerCompletions(workspace, context, ls),
-		registerHover(workspace, context),
-		registerGoToDefinition(workspace, context, ls),
-		registerInlineImportCodeAction(workspace, context, ls),
-		registerReferences(workspace, context, ls),
+		registerCompletions(my),
+		registerHover(my),
+		registerGoToDefinition(my),
+		registerInlineImportCodeAction(my),
+		registerReferences(my),
+		registerDiagnosticsProvider(my),
+		registerImportOverwriteDecorator(my),
 	);
 }
 

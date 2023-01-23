@@ -2,8 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import { posix as path } from "path";
 import * as vscode from "vscode";
-import { LanguageService as JsonLanguageService } from "vscode-json-languageservice";
 import { readJsonWithTemplate } from "./JsonTemplate";
+import { My } from "./my";
 import {
 	formatTemplateDefinition,
 	getConfigFileDocumentSelector,
@@ -23,11 +23,7 @@ const masterTemplateImportSpecifier = makeTemplateImportSpecifier(
 );
 const masterTemplateImport = makeTemplateImport(masterTemplateImportPath);
 
-export function register(
-	workspace: vscode.WorkspaceFolder,
-	context: vscode.ExtensionContext,
-	ls: JsonLanguageService,
-): vscode.Disposable {
+export function register({ workspace, ls }: My): vscode.Disposable {
 	return vscode.languages.registerCompletionItemProvider(
 		getConfigFileDocumentSelector(workspace),
 		{

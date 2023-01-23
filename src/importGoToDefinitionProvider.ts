@@ -1,8 +1,6 @@
 import * as vscode from "vscode";
-import {
-	LanguageService as JsonLanguageService,
-	TextDocument,
-} from "vscode-json-languageservice";
+import { TextDocument } from "vscode-json-languageservice";
+import { My } from "./my";
 
 import {
 	getConfigFileDocumentSelector,
@@ -11,11 +9,7 @@ import {
 	resolveTemplateFile,
 } from "./shared";
 
-export function register(
-	workspace: vscode.WorkspaceFolder,
-	context: vscode.ExtensionContext,
-	ls: JsonLanguageService,
-): vscode.Disposable {
+export function register({ workspace, ls }: My): vscode.Disposable {
 	return vscode.languages.registerDefinitionProvider(
 		getConfigFileDocumentSelector(workspace),
 		{
