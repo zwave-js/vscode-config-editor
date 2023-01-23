@@ -4,5 +4,10 @@
 -->
 
 # Changelog
+## 0.0.4 (2023-01-23)
+* Diagnostics for overwritten `$import`ed properties
+* Fixed Windows support
+* Perf: Avoid re-parsing config files and imports in all providers
+
 ## 0.0.3 (2023-01-20)
 * Initial release
