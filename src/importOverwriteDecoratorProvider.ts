@@ -34,9 +34,8 @@ export function register(my: My): vscode.Disposable {
 		backgroundColor: `rgba(${red}, 0.1)`,
 	});
 
-	const activeEditor = vscode.window.activeTextEditor;
-
 	return my.onDiagnosticsChanged((diag) => {
+		const activeEditor = vscode.window.activeTextEditor;
 		if (!activeEditor) return;
 
 		const valueDecorations: vscode.DecorationOptions[] = [];

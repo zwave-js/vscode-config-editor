@@ -38,47 +38,43 @@ export function register({ workspace, ls }: My): vscode.Disposable {
 				const spec = parseImportSpecifier(value);
 				if (!spec) return;
 
-				try {
-					const template = await resolveTemplate(
-						workspace,
-						document.uri,
-						spec.filename,
-						spec.templateKey,
-					);
-					if (!template) return;
+				const template = await resolveTemplate(
+					workspace,
+					document.uri,
+					spec.filename,
+					spec.templateKey,
+				);
+				if (!template) return;
 
-					delete template.$label;
-					delete template.$description;
+				delete template.$label;
+				delete template.$description;
 
-					const range = rangeFromNode(document, node.parent);
-					const formatted = JSON.stringify(template, undefined, "\t")
-						.slice(1, -1)
-						.trim()
-						.split("\n")
-						.map((line, i) => {
-							// All lines after the first need to be indented correctly
-							if (i === 0) {
-								return line;
-							}
-							return (
-								"\t".repeat(range.start.character) +
-								line.replace(/^\t/, "")
-							);
-						})
-						.join("\n");
-					const edit = new vscode.WorkspaceEdit();
-					edit.replace(document.uri, range, formatted);
+				const refactorRange = rangeFromNode(document, node.parent);
+				const formatted = JSON.stringify(template, undefined, "\t")
+					.slice(1, -1)
+					.trim()
+					.split("\n")
+					.map((line, i) => {
+						// All lines after the first need to be indented correctly
+						if (i === 0) {
+							return line;
+						}
+						return (
+							"\t".repeat(refactorRange.start.character) +
+							line.replace(/^\t/, "")
+						);
+					})
+					.join("\n");
+				const edit = new vscode.WorkspaceEdit();
+				edit.replace(document.uri, refactorRange, formatted);
 
-					return [
-						{
-							title: "Inline Template",
-							kind: vscode.CodeActionKind.RefactorInline,
-							edit,
-						},
-					];
-				} catch {
-					return;
-				}
+				return [
+					{
+						title: "Inline Template",
+						kind: vscode.CodeActionKind.RefactorInline,
+						edit,
+					},
+				];
 			},
 		},
 	);
