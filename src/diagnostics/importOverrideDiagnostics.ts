@@ -83,7 +83,7 @@ export function generateImportOverrideDiagnostics(
 		for (const [name, value, propNode] of properties) {
 			const originalValue = imp[name];
 			const isUnchanged = value === originalValue;
-			const range = rangeFromNode(config.original, propNode.parent);
+			const range = rangeFromNode(config.original, propNode);
 
 			if (isUnchanged) {
 				ret.push({

@@ -7,7 +7,7 @@ import {
 import { My } from "./my";
 
 const red = "255, 0, 0";
-const blue = "255, 255, 0";
+const blue = "84, 116, 222";
 
 export function register(my: My): vscode.Disposable {
 	const overwrittenValue = vscode.window.createTextEditorDecorationType({
@@ -20,11 +20,10 @@ export function register(my: My): vscode.Disposable {
 	});
 	const overwrittenValueBg = vscode.window.createTextEditorDecorationType({
 		isWholeLine: true,
-		// backgroundColor: `rgba(${blue}, 0.1)`,
 	});
 	const unchangedValue = vscode.window.createTextEditorDecorationType({
 		before: {
-			contentText: "●",
+			contentText: "◆",
 			width: "0",
 			margin: "0 1em 0 -1em",
 			color: `rgba(${red}, 0.65)`,
