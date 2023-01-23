@@ -4,6 +4,9 @@
 -->
 
 # Changelog
+## 0.0.6 (2023-01-23)
+* Feat: Quick fix for properties that unnecessarily override `$import`ed properties
+
 ## 0.0.5 (2023-01-23)
 * Fix: Decorations could be shown in wrong editor
 
