@@ -3,11 +3,11 @@
 import * as vscode from "vscode";
 import { getLanguageService as getJsonLanguageService } from "vscode-json-languageservice";
 
+import { register as registerInlineImportCodeAction } from "./codeActions/inlineImportCodeActionProvider";
 import { register as registerCompletions } from "./importCompletionProvider";
 import { register as registerGoToDefinition } from "./importGoToDefinitionProvider";
 import { register as registerHover } from "./importHoverProvider";
-import { register as registerImportOverwriteDecorator } from "./importOverwriteDecoratorProvider";
-import { register as registerInlineImportCodeAction } from "./inlineImportCodeActionProvider";
+import { register as registerImportOverrides } from "./importOverrides";
 import { register as registerReferences } from "./templateReferencesProvider";
 
 import { enableConfigDocumentCache } from "./configDocument";
@@ -53,7 +53,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		registerInlineImportCodeAction(my),
 		registerReferences(my),
 		registerDiagnosticsProvider(my),
-		registerImportOverwriteDecorator(my),
+		...registerImportOverrides(my),
 	);
 }
 

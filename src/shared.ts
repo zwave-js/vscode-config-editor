@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import {
 	ASTNode,
 	Location,
+	ObjectASTNode,
 	Position,
 	PropertyASTNode,
 	Range,
@@ -248,6 +249,28 @@ export function rangeFromNode(
 	const start = document.positionAt(node.offset);
 	const end = document.positionAt(node.offset + node.length);
 	return new vscode.Range(start, end);
+}
+
+export function tryExpandPropertyRange(
+	document: vscode.TextDocument,
+	node: PropertyASTNode & { parent: ObjectASTNode },
+): vscode.Range {
+	const siblings = node.parent.properties;
+	if (siblings.length === 1) return rangeFromNode(document, node);
+	const index = siblings.indexOf(node);
+	if (index > 0) {
+		// Select everything from the end of the previous property to the end of this one
+		const start = document.positionAt(
+			siblings[index - 1].offset + siblings[index - 1].length,
+		);
+		const end = document.positionAt(node.offset + node.length);
+		return new vscode.Range(start, end);
+	} else {
+		// Select everything from the start of this property to the start of the next one
+		const start = document.positionAt(node.offset);
+		const end = document.positionAt(siblings[index + 1].offset);
+		return new vscode.Range(start, end);
+	}
 }
 
 export function reactToActiveEditorChanges(

@@ -1,56 +1,44 @@
 import * as vscode from "vscode";
-import { TextDocument } from "vscode-json-languageservice";
-import { My } from "./my";
+import { My } from "../my";
 
 import {
 	getConfigFileDocumentSelector,
+	getPropertyNameFromNode,
+	getPropertyValueFromNode,
 	getTemplateDocumentSelector,
 	nodeIsPropertyNameOrValue,
-	parseImportSpecifier,
 	rangeFromNode,
-	resolveTemplate,
-} from "./shared";
+} from "../shared";
 
-export function register({ workspace, ls }: My): vscode.Disposable {
+export function register(my: My): vscode.Disposable {
+	const { workspace } = my;
 	return vscode.languages.registerCodeActionsProvider(
 		[
 			getConfigFileDocumentSelector(workspace),
 			...getTemplateDocumentSelector(workspace),
 		],
 		{
-			async provideCodeActions(document, range, _context, _token) {
-				const textDoc = TextDocument.create(
-					document.uri.toString(),
-					"jsonc",
-					1,
-					document.getText(),
-				);
-				const jsonDoc = ls.parseJSONDocument(textDoc);
-				const node = jsonDoc.getNodeFromOffset(
+			provideCodeActions(document, range, _context, _token) {
+				const configDoc = my.configDocument;
+				if (!configDoc) return;
+
+				const node = configDoc.json.getNodeFromOffset(
 					document.offsetAt(range.start),
 				);
 				if (!nodeIsPropertyNameOrValue(node)) return;
-				if (node.parent.keyNode.value !== "$import") return;
+				if (getPropertyNameFromNode(node) !== "$import") {
+					return;
+				}
+				const value = getPropertyValueFromNode(node);
+				if (typeof value !== "string") return;
 
-				const value = node.parent.valueNode?.value;
-				if (typeof value !== "string" || !value) return;
-
-				const spec = parseImportSpecifier(value);
-				if (!spec) return;
-
-				const template = await resolveTemplate(
-					workspace,
-					document.uri,
-					spec.filename,
-					spec.templateKey,
-				);
+				const template = configDoc.templates[value];
 				if (!template) return;
 
-				delete template.$label;
-				delete template.$description;
+				const { $label, $description, ...$definition } = template;
 
 				const refactorRange = rangeFromNode(document, node.parent);
-				const formatted = JSON.stringify(template, undefined, "\t")
+				const formatted = JSON.stringify($definition, undefined, "\t")
 					.slice(1, -1)
 					.trim()
 					.split("\n")

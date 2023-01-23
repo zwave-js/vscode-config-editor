@@ -3,8 +3,8 @@ import {
 	DiagnosticType,
 	ImportOverrideDiagnostic,
 	UnnecessaryImportOverrideDiagnostic,
-} from "./diagnostics/diagnostics";
-import { My } from "./my";
+} from "../diagnostics/diagnostics";
+import { My } from "../my";
 
 const red = "255, 0, 0";
 const blue = "84, 116, 222";
@@ -61,10 +61,10 @@ export function register(my: My): vscode.Disposable {
 
 			const hoverMessage = isPrimitive
 				? new vscode.MarkdownString(
-						`This property overwrites value \`${diag.originalValue}\` from the imported template.`,
+						`This property overrides value \`${diag.originalValue}\` from the imported template.`,
 				  )
 				: new vscode.MarkdownString(
-						`This property overwrites this value from the imported template:
+						`This property overrides this value from the imported template:
 \`\`\`
 ${JSON.stringify(diag.originalValue, null, 2)}
 \`\`\``,
@@ -76,12 +76,9 @@ ${JSON.stringify(diag.originalValue, null, 2)}
 
 		for (const diag of unnecessaryOverrideDiagnostics) {
 			const range = diag.range;
-			const hoverMessage = new vscode.MarkdownString(
-				"This property unnecessarily overwrites the imported template.",
-			);
-
+			// No message here, this is a diagnostic
 			unchangedValueDecorations.push({ range });
-			unchangedLineDecorations.push({ range, hoverMessage });
+			unchangedLineDecorations.push({ range });
 		}
 
 		activeEditor.setDecorations(overwrittenValue, valueDecorations);
