@@ -130,7 +130,10 @@ async function readJsonWithTemplateInternal(
 
 	// Make sure the file is inside the config directory
 	const rootDir = vscode.Uri.joinPath(workspace.uri, configRoot);
-	const relativeToRoot = path.relative(rootDir.fsPath, filename);
+	const relativeToRoot = path.relative(
+		rootDir.path,
+		vscode.Uri.file(filename).path,
+	);
 	if (relativeToRoot.startsWith("..")) {
 		throw new Error(
 			`Tried to import config file "${filename}" outside of root directory "${
