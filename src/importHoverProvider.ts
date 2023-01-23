@@ -4,31 +4,32 @@ import { My } from "./my";
 import {
 	formatTemplateDefinition,
 	getConfigFileDocumentSelector,
-	getImportSpecifierFromLine,
-	resolveTemplate,
+	getPropertyNameFromNode,
+	getPropertyValueFromNode,
+	nodeIsPropertyNameOrValue,
 } from "./shared";
 
-export function register({ workspace }: My): vscode.Disposable {
+export function register(my: My): vscode.Disposable {
+	const { workspace } = my;
 	return vscode.languages.registerHoverProvider(
 		getConfigFileDocumentSelector(workspace),
 		{
-			async provideHover(document, position, _token) {
-				const line = document.lineAt(position.line).text.trim();
+			provideHover(document, position, _token) {
+				const configDoc = my.configDocument;
+				if (!configDoc) return;
 
-				const imp = getImportSpecifierFromLine(line);
-				if (!imp) {
-					return undefined;
-				}
-
-				const template = await resolveTemplate(
-					workspace,
-					document.uri,
-					imp.filename,
-					imp.templateKey,
+				const nodeAtPosition = configDoc.json.getNodeFromOffset(
+					document.offsetAt(position),
 				);
-				if (!template) {
-					return undefined;
+				if (!nodeIsPropertyNameOrValue(nodeAtPosition)) return;
+				if (getPropertyNameFromNode(nodeAtPosition) !== "$import") {
+					return;
 				}
+				const value = getPropertyValueFromNode(nodeAtPosition);
+				if (typeof value !== "string") return;
+
+				const template = configDoc.templates[value];
+				if (!template) return;
 
 				const { $label, $description, ...$definition } = template;
 
