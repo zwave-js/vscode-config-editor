@@ -5,3 +5,6 @@ node_modules/
 out
 dist
 **/*.d.ts
+
+esbuild.js
+.eslintrc.js

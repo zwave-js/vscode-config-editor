@@ -13,10 +13,20 @@ import { register as registerReferences } from "./templateReferencesProvider";
 import { enableConfigDocumentCache } from "./configDocument";
 import { registerDiagnosticsProvider } from "./diagnostics/provider";
 import { My } from "./my";
+import { HelloWorldPanel } from "./panels/HelloWorld";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): void {
+	const helloCommand = vscode.commands.registerCommand(
+		"config-editor.helloWorld",
+		() => {
+			HelloWorldPanel.render(context.extensionUri);
+		},
+	);
+
+	context.subscriptions.push(helloCommand);
+
 	const workspace = vscode.workspace.workspaceFolders?.[0];
 	if (!workspace) {
 		return;
