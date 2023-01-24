@@ -1,4 +1,4 @@
-import * as JSON5 from "json5";
+import { parse as parseJsonC } from "jsonc-parser";
 import * as vscode from "vscode";
 import {
 	ASTNode,
@@ -70,7 +70,7 @@ export async function findConfigFiles(
 export async function readJSON(uri: vscode.Uri): Promise<Record<string, any>> {
 	const fileContentRaw = await vscode.workspace.fs.readFile(uri);
 	const fileContentString = Buffer.from(fileContentRaw).toString("utf8");
-	return JSON5.parse(fileContentString);
+	return parseJsonC(fileContentString);
 }
 
 export async function readTextFile(uri: vscode.Uri): Promise<string> {

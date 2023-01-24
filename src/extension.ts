@@ -13,20 +13,11 @@ import { register as registerReferences } from "./templateReferencesProvider";
 import { enableConfigDocumentCache } from "./configDocument";
 import { registerDiagnosticsProvider } from "./diagnostics/provider";
 import { My } from "./my";
-import { HelloWorldPanel } from "./panels/HelloWorld";
+import { PreviewPanel } from "./panels/Preview";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): void {
-	const helloCommand = vscode.commands.registerCommand(
-		"config-editor.helloWorld",
-		() => {
-			HelloWorldPanel.render(context.extensionUri);
-		},
-	);
-
-	context.subscriptions.push(helloCommand);
-
 	const workspace = vscode.workspace.workspaceFolders?.[0];
 	if (!workspace) {
 		return;
@@ -41,20 +32,31 @@ export function activate(context: vscode.ExtensionContext): void {
 	const my = new My(workspace, context, ls);
 	enableConfigDocumentCache(my);
 
-	// // Use the console to output diagnostic information (console.log) and errors (console.error)
-	// // This line of code will only be executed once when your extension is activated
-	// console.log(
-	//   'Congratulations, your extension "zwave-js-config-editor" is now active!'
+	// const previewCommand = vscode.commands.registerCommand(
+	// 	"config-editor.previewConfig",
+	// 	() => {
+	// 		PreviewPanel.render(context.extensionUri);
+	// 	},
 	// );
-
-	// // The command has been defined in the package.json file
-	// // Now provide the implementation of the command with registerCommand
-	// // The commandId parameter must match the command field in package.json
-	// let disposable = vscode.commands.registerCommand('zwave-js-config-editor.helloWorld', () => {
-	// 	// The code you place here will be executed every time your command is executed
-	// 	// Display a message box to the user
-	// 	vscode.window.showInformationMessage('Hello World from Z-Wave JS Config Editor!');
-	// });
+	// context.subscriptions.push(previewCommand);
+	context.subscriptions.push(
+		my.onConfigDocumentChanged(async (doc) => {
+			if (doc) {
+				if (PreviewPanel.currentPanel) {
+					// TODO: update PreviewPanel.currentPanel.update(doc);
+				} else {
+					PreviewPanel.render(context.extensionUri);
+				}
+				console.log("request");
+				await PreviewPanel.currentPanel!.setMessageText(
+					doc.original.fileName,
+				);
+				console.log("response");
+			} else {
+				PreviewPanel.currentPanel?.dispose();
+			}
+		}),
+	);
 
 	context.subscriptions.push(
 		registerCompletions(my),
