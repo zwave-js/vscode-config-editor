@@ -1,32 +1,36 @@
-import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
+import "../assets/style.css";
 import { useWindowEvent } from "../hooks/useWindowEvent";
-import { IPCMessage, IPCMessage_SetText } from "../shared/protocol";
+import { IPCMessage, IPCMessage_Ready } from "../shared/protocol";
+import { ParamPreview } from "./paramPreview";
 
 const vscode = acquireVsCodeApi();
 
 const Root: React.FC = () => {
-	const [text, setText] = useState("Hello World");
-	const [lastCallbackId, setLastCallbackId] = useState(0);
+	const [paramPreview, setParamPreview] = useState<ParamPreview>();
 
-	const handleClick = React.useCallback(() => {
+	// const [lastCallbackId, setLastCallbackId] = useState(0);
+
+	// Notify the extension that the webview is ready to receive messages
+	React.useEffect(() => {
 		vscode.postMessage({
-			_id: lastCallbackId,
-			command: "setText",
-			text: "Hey there partner! 🤠",
-		} satisfies IPCMessage_SetText);
-	}, [lastCallbackId]);
+			command: "ready",
+		} satisfies IPCMessage_Ready);
+	}, []);
 
 	useWindowEvent("message", (event: MessageEvent<IPCMessage>) => {
-		if (event.data.command === "setText") {
-			setText(event.data.text);
-			setLastCallbackId(event.data._id!);
+		if (event.data.command === "renderParam") {
+			setParamPreview({
+				param: event.data.param,
+				overwrittenProperties: event.data.overwrittenProperties,
+			});
 		}
 	});
+
 	return (
 		<>
-			<VSCodeButton onClick={handleClick}>{text}</VSCodeButton>
+			<ParamPreview {...paramPreview} />
 		</>
 	);
 };

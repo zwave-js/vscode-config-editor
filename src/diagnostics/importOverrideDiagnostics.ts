@@ -2,12 +2,11 @@ import { ASTNode, PropertyASTNode } from "vscode-json-languageservice";
 import {
 	getPropertyNameFromNode,
 	getPropertyValueFromNode,
-	j2vRange,
 	nodeIsPropertyNameOrValue,
 	rangeFromNode,
-} from "../shared";
-
+} from "../astUtils";
 import { ConfigDocument } from "../configDocument";
+import { j2vRange } from "../shared";
 import { Diagnostic, DiagnosticType } from "./diagnostics";
 
 export function generateImportOverrideDiagnostics(

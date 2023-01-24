@@ -12,6 +12,7 @@ import { register as registerReferences } from "./templateReferencesProvider";
 
 import { enableConfigDocumentCache } from "./configDocument";
 import { registerDiagnosticsProvider } from "./diagnostics/provider";
+import { registerPreviewProvider } from "./interactivePreview/provider";
 import { My } from "./my";
 import { PreviewPanel } from "./panels/Preview";
 
@@ -32,28 +33,10 @@ export function activate(context: vscode.ExtensionContext): void {
 	const my = new My(workspace, context, ls);
 	enableConfigDocumentCache(my);
 
-	// const previewCommand = vscode.commands.registerCommand(
-	// 	"config-editor.previewConfig",
-	// 	() => {
-	// 		PreviewPanel.render(context.extensionUri);
-	// 	},
-	// );
-	// context.subscriptions.push(previewCommand);
 	context.subscriptions.push(
-		my.onConfigDocumentChanged(async (doc) => {
-			if (doc) {
-				if (PreviewPanel.currentPanel) {
-					// TODO: update PreviewPanel.currentPanel.update(doc);
-				} else {
-					PreviewPanel.render(context.extensionUri);
-				}
-				console.log("request");
-				await PreviewPanel.currentPanel!.setMessageText(
-					doc.original.fileName,
-				);
-				console.log("response");
-			} else {
-				PreviewPanel.currentPanel?.dispose();
+		my.onConfigDocumentChanged(async (change) => {
+			if (change.current) {
+				await PreviewPanel.render(context.extensionUri);
 			}
 		}),
 	);
@@ -65,6 +48,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		registerInlineImportCodeAction(my),
 		registerReferences(my),
 		registerDiagnosticsProvider(my),
+		...registerPreviewProvider(my),
 		...registerImportOverrides(my),
 	);
 }

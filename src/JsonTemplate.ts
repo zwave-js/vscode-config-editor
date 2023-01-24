@@ -178,7 +178,7 @@ async function readJsonWithTemplateInternal(
 }
 
 /** Replaces all `$import` properties in a JSON object with object spreads of the referenced file/property */
-async function resolveJsonImports(
+export async function resolveJsonImports(
 	workspace: vscode.WorkspaceFolder,
 	json: Record<string, unknown>,
 	filename: string,

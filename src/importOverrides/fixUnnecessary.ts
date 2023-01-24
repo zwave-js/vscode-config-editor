@@ -1,14 +1,12 @@
 import * as vscode from "vscode";
+import { tryExpandPropertyRange } from "../astUtils";
 import {
 	DiagnosticType,
 	UnnecessaryImportOverrideDiagnostic,
 } from "../diagnostics/diagnostics";
 import { My } from "../my";
 
-import {
-	getConfigFileDocumentSelector,
-	tryExpandPropertyRange,
-} from "../shared";
+import { getConfigFileDocumentSelector } from "../shared";
 
 export function register(my: My): vscode.Disposable[] {
 	const { workspace } = my;

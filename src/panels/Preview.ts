@@ -1,10 +1,9 @@
-import * as vscode from "vscode";
 import {
-	IPCMessage,
-	IPCMessageBase,
-	IPCMessageCallback,
-	IPCMessage_SetText,
-} from "./shared/protocol";
+	createDeferredPromise,
+	DeferredPromise,
+} from "alcalzone-shared/deferred-promise";
+import * as vscode from "vscode";
+import { IPCMessage, IPCMessageCallback } from "./shared/protocol";
 import { getNonce, getUri } from "./utils";
 
 export class PreviewPanel {
@@ -14,12 +13,19 @@ export class PreviewPanel {
 
 	private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
 		this._panel = panel;
+		this._ready = createDeferredPromise();
+		this._setWebviewMessageListener(this._panel.webview);
+
 		this._panel.webview.html = this._getWebviewContent(
 			this._panel.webview,
 			extensionUri,
 		);
-		this._setWebviewMessageListener(this._panel.webview);
 		this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+	}
+
+	private _ready: DeferredPromise<boolean>;
+	public ensureReady(): Promise<boolean> {
+		return this._ready;
 	}
 
 	private _getWebviewContent(
@@ -31,7 +37,11 @@ export class PreviewPanel {
 			"webview-root.js",
 		]);
 		const nonce = getNonce();
-		const contentPolicy = `default-src 'none'; style-src 'nonce-${nonce}'; font-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';`;
+		const contentPolicy = `default-src 'none'; style-src ${webview.cspSource}; font-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';`;
+		const styleUri = getUri(webview, extensionUri, [
+			"out",
+			"webview-root.css",
+		]);
 
 		// Tip: Install the es6-string-html VS Code extension to enable code highlighting below
 		return /*html*/ `
@@ -42,11 +52,7 @@ export class PreviewPanel {
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<meta http-equiv="Content-Security-Policy" content="${contentPolicy}">
 				<title>Hello World!</title>
-				<style nonce="${nonce}">
-					body {
-						padding: 1rem;
-					}
-				</style>
+				<link rel="stylesheet" href="${styleUri.toString()}">
 			</head>
 			<body>
 				<div id="root"></div>
@@ -57,11 +63,12 @@ export class PreviewPanel {
 	}
 
 	private callbacks = new Map<number, IPCMessageCallback>();
-	public sendMessage(
+	private sendMessage(
 		message: IPCMessage,
 		callback?: IPCMessageCallback,
 	): void {
 		if (callback) {
+			// FIXME: This is bullshit
 			message._id = ((message._id ?? 0) + 1) % 2 ** 30;
 			if (message._id === 0) message._id = 1;
 
@@ -70,8 +77,8 @@ export class PreviewPanel {
 		void this._panel.webview.postMessage(message);
 	}
 
-	public sendMessageAsync(message: IPCMessage): Promise<IPCMessageBase> {
-		return new Promise<IPCMessageBase>((resolve) => {
+	private sendMessageAsync(message: IPCMessage): Promise<IPCMessage> {
+		return new Promise<IPCMessage>((resolve) => {
 			this.sendMessage(message, resolve);
 		});
 	}
@@ -92,26 +99,23 @@ export class PreviewPanel {
 	}
 
 	private _messageHandler(message: IPCMessage) {
+		if (message.command === "ready") {
+			this._ready.resolve(true);
+			return;
+		}
 		console.warn("Unhandled message: ", message);
 	}
 
-	public async setMessageText(text: string): Promise<void> {
-		const result = await this.sendMessageAsync({
-			command: "setText",
-			text,
-		});
-		void vscode.window.showInformationMessage(
-			(result as IPCMessage_SetText).text,
-		);
-	}
-
-	public static render(extensionUri: vscode.Uri): void {
+	public static async render(extensionUri: vscode.Uri): Promise<void> {
 		if (PreviewPanel.currentPanel) {
-			PreviewPanel.currentPanel._panel.reveal(vscode.ViewColumn.Beside);
+			PreviewPanel.currentPanel._panel.reveal(
+				vscode.ViewColumn.Beside,
+				true,
+			);
 		} else {
 			const panel = vscode.window.createWebviewPanel(
 				"config-preview",
-				"Preview",
+				"Config preview",
 				{
 					viewColumn: vscode.ViewColumn.Beside,
 					preserveFocus: true,
@@ -126,6 +130,7 @@ export class PreviewPanel {
 
 			PreviewPanel.currentPanel = new PreviewPanel(panel, extensionUri);
 		}
+		await PreviewPanel.currentPanel.ensureReady();
 	}
 
 	public dispose(): void {
@@ -139,5 +144,19 @@ export class PreviewPanel {
 				disposable.dispose();
 			}
 		}
+	}
+
+	// ------------------------------------------------------------
+	// Here follow IPC methods
+
+	public renderParam(
+		param: Record<string, any> | undefined,
+		overwrittenProperties: string[] | undefined,
+	): void {
+		this.sendMessage({
+			command: "renderParam",
+			param,
+			overwrittenProperties,
+		});
 	}
 }

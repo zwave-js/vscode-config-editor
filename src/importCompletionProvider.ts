@@ -2,13 +2,12 @@
 // Import the module and reference it with the alias vscode in your code below
 import { posix as path } from "path";
 import * as vscode from "vscode";
+import { nodeIsPropertyName, nodeIsPropertyValue } from "./astUtils";
 import { readJsonWithTemplate } from "./JsonTemplate";
 import { My } from "./my";
 import {
 	formatTemplateDefinition,
 	getConfigFileDocumentSelector,
-	nodeIsPropertyName,
-	nodeIsPropertyValue,
 	parseImportSpecifier,
 	resolveTemplateFile,
 } from "./shared";

@@ -1,12 +1,11 @@
 import * as vscode from "vscode";
 import { TextDocument } from "vscode-json-languageservice";
+import { getPropertyNameFromNode, nodeIsPropertyNameOrValue } from "./astUtils";
 import { My } from "./my";
 
 import {
 	findConfigFiles,
-	getPropertyNameFromNode,
 	getTemplateDocumentSelector,
-	nodeIsPropertyNameOrValue,
 	parseImportSpecifier,
 	readTextFile,
 	resolveTemplateFile,

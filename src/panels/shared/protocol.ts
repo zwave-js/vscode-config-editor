@@ -3,11 +3,16 @@ export interface IPCMessageBase {
 	command: string;
 }
 
-export interface IPCMessage_SetText extends IPCMessageBase {
-	command: "setText";
-	text: string;
+export interface IPCMessage_Ready extends IPCMessageBase {
+	command: "ready";
 }
 
-export type IPCMessage = IPCMessage_SetText;
+export interface IPCMessage_RenderParam extends IPCMessageBase {
+	command: "renderParam";
+	param: Record<string, any> | undefined;
+	overwrittenProperties: string[] | undefined;
+}
+
+export type IPCMessage = IPCMessage_Ready | IPCMessage_RenderParam;
 
 export type IPCMessageCallback = (message: IPCMessage) => void;
