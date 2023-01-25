@@ -4,7 +4,7 @@
 -->
 
 # Changelog
-## __WORK IN PROGRESS__
+## 0.0.7 (2023-01-25)
 * Config parameters are rendered in a preview
 
 ## 0.0.6 (2023-01-23)
