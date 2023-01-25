@@ -4,6 +4,9 @@
 -->
 
 # Changelog
+## __WORK IN PROGRESS__
+* Fix: support override decorations for same-file `$import`s
+
 ## 0.0.9 (2023-01-25)
 * Fix: support `$import`s from the same file
 * Fix: Handle invalid `$import` statements more gracefully

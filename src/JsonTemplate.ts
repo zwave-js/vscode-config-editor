@@ -78,7 +78,7 @@ function getImportSpecifier(filename: string, selector?: string): string {
 	return ret;
 }
 
-function select(
+export function selectFromTemplate(
 	obj: Record<string, unknown>,
 	selector: string,
 ): Record<string, unknown> {
@@ -170,7 +170,7 @@ async function readJsonWithTemplateInternal(
 	// Resolve the JSON imports for (a subset) of the file and return the compound file
 	return resolveJsonImports(
 		workspace,
-		selector ? select(json, selector) : json,
+		selector ? selectFromTemplate(json, selector) : json,
 		filename,
 		[...visited, specifier],
 		fileCache,

@@ -1,3 +1,4 @@
+import { parse as parseJsonC } from "jsonc-parser";
 import * as vscode from "vscode";
 import {
 	ASTNode,
@@ -9,6 +10,7 @@ import {
 	getPropertyValueFromNode,
 	nodeIsPropertyNameOrValue,
 } from "./astUtils";
+import { selectFromTemplate } from "./JsonTemplate";
 import { My } from "./my";
 import {
 	getConfigFileDocumentSelector,
@@ -77,6 +79,7 @@ export async function parseConfigDocument(
 	);
 	const jsonDoc = my.ls.parseJSONDocument(textDoc);
 	const symbols = my.ls.findDocumentSymbols(textDoc, jsonDoc);
+	const docAsJson = parseJsonC(document.getText());
 
 	const importDirectives = symbols
 		.filter((s) => s.name === "$import")
@@ -95,9 +98,10 @@ export async function parseConfigDocument(
 
 	const templates = (
 		await Promise.all(
-			importDirectives.map(
-				async ([imp, spec]) =>
-					[
+			importDirectives.map(async ([imp, spec]) => {
+				if (spec.filename) {
+					// This is an import from another file
+					return [
 						imp,
 						await resolveTemplate(
 							my.workspace,
@@ -105,8 +109,19 @@ export async function parseConfigDocument(
 							spec.filename,
 							spec.templateKey,
 						).catch(() => undefined),
-					] as const,
-			),
+					] as const;
+				} else {
+					// This is a same-file import
+					try {
+						return [
+							imp,
+							selectFromTemplate(docAsJson, spec.templateKey),
+						] as const;
+					} catch {
+						return [imp, undefined] as const;
+					}
+				}
+			}),
 		)
 	).filter((t): t is [string, Record<string, any>] => !!t[1]);
 
