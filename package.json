@@ -3,7 +3,7 @@
   "name": "config-editor",
   "displayName": "Z-Wave JS Config Editor",
   "description": "Editor support for authoring Z-Wave JS device configuration files",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "engines": {
     "vscode": "^1.74.0"
   },

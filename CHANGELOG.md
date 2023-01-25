@@ -4,7 +4,7 @@
 -->
 
 # Changelog
-## __WORK IN PROGRESS__
+## 0.0.10 (2023-01-25)
 * Fix: support override decorations for same-file `$import`s
 
 ## 0.0.9 (2023-01-25)
