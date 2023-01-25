@@ -76,7 +76,9 @@ export function resolveTemplateFile(
 	from: vscode.Uri,
 	filename: string,
 ): vscode.Uri {
-	if (filename.startsWith("~")) {
+	if (!filename) {
+		return from;
+	} else if (filename.startsWith("~")) {
 		// "absolute" URL
 		const actualFilename = filename.replace(/^~\//, configRoot + "/");
 		return vscode.Uri.joinPath(workspace.uri, actualFilename);
@@ -108,7 +110,7 @@ export function getImportSpecifierFromLine(line: string):
 		line = line.substring(0, line.indexOf('"'));
 	}
 
-	if (!line.includes(".json#")) {
+	if (!line.includes("#")) {
 		return undefined;
 	}
 
@@ -119,7 +121,7 @@ export function getImportSpecifierFromLine(line: string):
 export function parseImportSpecifier(
 	value: string,
 ): ImportSpecifier | undefined {
-	if (!value.includes(".json#")) {
+	if (!value.includes("#")) {
 		return undefined;
 	}
 

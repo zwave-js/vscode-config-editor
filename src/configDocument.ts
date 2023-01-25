@@ -104,7 +104,7 @@ export async function parseConfigDocument(
 							document.uri,
 							spec.filename,
 							spec.templateKey,
-						),
+						).catch(() => undefined),
 					] as const,
 			),
 		)

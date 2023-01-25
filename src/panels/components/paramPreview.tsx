@@ -34,6 +34,8 @@ export const ParamPreview: React.FC<ParamPreviewProps> = ({
 		paramNo = parseInt(paramNo).toString();
 	}
 
+	const unresolvedImport: string | undefined = param.$import;
+
 	return (
 		<div className="param-preview">
 			<div className="param-preview__number">
@@ -59,6 +61,17 @@ export const ParamPreview: React.FC<ParamPreviewProps> = ({
 			</div>
 
 			<div className="param-preview__details">
+				{/* Show errors */}
+				{unresolvedImport && (
+					<>
+						<span className="error">Error</span>
+						<span className="error">
+							Unresolved template import:
+							<pre>{unresolvedImport}</pre>
+						</span>
+					</>
+				)}
+
 				{/* Partial parameters */}
 				{bitMask && (
 					<>

@@ -4,6 +4,10 @@
 -->
 
 # Changelog
+## __WORK IN PROGRESS__
+* Fix: support `$import`s from the same file
+* Fix: Handle invalid `$import` statements more gracefully
+
 ## 0.0.8 (2023-01-25)
 * Fix: Writeonly parameters were incorrectly rendered as read/write
 

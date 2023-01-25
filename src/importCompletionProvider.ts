@@ -187,64 +187,61 @@ export function register({ workspace, ls }: My): vscode.Disposable {
 						}
 					} else {
 						// Suggest valid templates from the selected file
+						const uri = resolveTemplateFile(
+							workspace,
+							document.uri,
+							spec.filename,
+						);
+						let fileContent: Record<string, any>;
 						try {
-							const uri = resolveTemplateFile(
+							fileContent = await readJsonWithTemplate(
 								workspace,
-								document.uri,
-								spec.filename,
+								uri.fsPath,
 							);
-							const fileContent: Record<string, any> =
-								await readJsonWithTemplate(
-									workspace,
-									uri.fsPath,
+						} catch (e) {
+							return;
+						}
+
+						const importSuggestions = Object.entries<
+							Record<string, any>
+						>(fileContent).map(
+							([
+								key,
+								{
+									$label: label = key,
+									$description,
+									...$import
+								},
+							]) => {
+								const documentation = formatTemplateDefinition(
+									$import,
+									undefined,
+									$description,
 								);
 
-							const importSuggestions = Object.entries<
-								Record<string, any>
-							>(fileContent).map(
-								([
-									key,
-									{
-										$label: label = key,
-										$description,
-										...$import
-									},
-								]) => {
-									const documentation =
-										formatTemplateDefinition(
-											$import,
-											undefined,
-											$description,
-										);
-
-									const completionItem: vscode.CompletionItem =
-										new vscode.CompletionItem(
-											key,
-											vscode.CompletionItemKind.Snippet,
-										);
-									completionItem.detail = label;
-									// completionItem.sortText = key;
-									// completionItem.insertText = key;
-									// completionItem.filterText = key;
-									completionItem.documentation =
-										new vscode.MarkdownString(
-											documentation,
-										);
-									completionItem.range = new vscode.Range(
-										position.translate(
-											0,
-											-spec.templateKey.length,
-										),
-										position,
+								const completionItem: vscode.CompletionItem =
+									new vscode.CompletionItem(
+										key,
+										vscode.CompletionItemKind.Snippet,
 									);
-									return completionItem;
-								},
-							);
+								completionItem.detail = label;
+								// completionItem.sortText = key;
+								// completionItem.insertText = key;
+								// completionItem.filterText = key;
+								completionItem.documentation =
+									new vscode.MarkdownString(documentation);
+								completionItem.range = new vscode.Range(
+									position.translate(
+										0,
+										-spec.templateKey.length,
+									),
+									position,
+								);
+								return completionItem;
+							},
+						);
 
-							ret.push(...importSuggestions);
-						} catch (e) {
-							console.error(e);
-						}
+						ret.push(...importSuggestions);
 					}
 				}
 

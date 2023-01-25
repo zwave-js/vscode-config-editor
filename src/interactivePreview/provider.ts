@@ -18,13 +18,19 @@ async function showInteractivePreview(my: My, position: vscode.Position) {
 		rangeFromNode(my.configDocument.original, param),
 	);
 	const record = parseJsonC(text);
-	const resolved = await resolveJsonImports(
-		my.workspace,
-		record,
-		my.configDocument.original.fileName,
-		[],
-		new Map(),
-	);
+	let resolved: Record<string, unknown>;
+	try {
+		resolved = await resolveJsonImports(
+			my.workspace,
+			record,
+			my.configDocument.original.fileName,
+			[],
+			new Map(),
+		);
+	} catch (e) {
+		// Probably an incorrect definition
+		resolved = record;
+	}
 
 	const overwrittenProperties = param.properties
 		.map((p) => p.keyNode.value)
