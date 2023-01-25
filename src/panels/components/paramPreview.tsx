@@ -20,8 +20,9 @@ export const ParamPreview: React.FC<ParamPreviewProps> = ({
 		return <div className="param-preview empty">No parameter selected</div>;
 	}
 
-	const read = param.writeOnly !== false;
+	const read = param.writeOnly !== true;
 	const write = param.readOnly !== true;
+
 	let paramNo: string = param["#"];
 	let bitMask: string | undefined;
 	const match = valueBitMaskRegex.exec(paramNo);

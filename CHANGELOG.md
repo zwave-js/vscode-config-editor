@@ -4,6 +4,9 @@
 -->
 
 # Changelog
+## __WORK IN PROGRESS__
+* Fix: Writeonly parameters were incorrectly rendered as read/write
+
 ## 0.0.7 (2023-01-25)
 * Config parameters are rendered in a preview
 
