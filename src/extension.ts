@@ -12,7 +12,9 @@ import { register as registerReferences } from "./templateReferencesProvider";
 
 import { enableConfigDocumentCache } from "./configDocument";
 import { registerDiagnosticsProvider } from "./diagnostics/provider";
+import { registerPreviewProvider } from "./interactivePreview/provider";
 import { My } from "./my";
+import { PreviewPanel } from "./panels/Preview";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -31,20 +33,13 @@ export function activate(context: vscode.ExtensionContext): void {
 	const my = new My(workspace, context, ls);
 	enableConfigDocumentCache(my);
 
-	// // Use the console to output diagnostic information (console.log) and errors (console.error)
-	// // This line of code will only be executed once when your extension is activated
-	// console.log(
-	//   'Congratulations, your extension "zwave-js-config-editor" is now active!'
-	// );
-
-	// // The command has been defined in the package.json file
-	// // Now provide the implementation of the command with registerCommand
-	// // The commandId parameter must match the command field in package.json
-	// let disposable = vscode.commands.registerCommand('zwave-js-config-editor.helloWorld', () => {
-	// 	// The code you place here will be executed every time your command is executed
-	// 	// Display a message box to the user
-	// 	vscode.window.showInformationMessage('Hello World from Z-Wave JS Config Editor!');
-	// });
+	context.subscriptions.push(
+		my.onConfigDocumentChanged(async (change) => {
+			if (change.current) {
+				await PreviewPanel.render(context.extensionUri);
+			}
+		}),
+	);
 
 	context.subscriptions.push(
 		registerCompletions(my),
@@ -53,6 +48,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		registerInlineImportCodeAction(my),
 		registerReferences(my),
 		registerDiagnosticsProvider(my),
+		...registerPreviewProvider(my),
 		...registerImportOverrides(my),
 	);
 }

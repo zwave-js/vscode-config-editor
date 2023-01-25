@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { LanguageService as JsonLanguageService } from "vscode-json-languageservice";
-import { ConfigDocument } from "./configDocument";
+import { ConfigDocument, ConfigDocumentChange } from "./configDocument";
 import { Diagnostic } from "./diagnostics/diagnostics";
 
 export class My {
@@ -23,15 +23,42 @@ export class My {
 		return this._configDocument;
 	}
 	public set configDocument(value: ConfigDocument | undefined) {
+		const old = this._configDocument;
 		this._configDocument = value;
-		this._onConfigDocumentChanged.fire(value);
+
+		if (!old && value) {
+			this._onConfigDocumentChanged.fire({
+				type: "opened",
+				prev: undefined,
+				current: value,
+			});
+		} else if (old && !value) {
+			this._onConfigDocumentChanged.fire({
+				type: "closed",
+				prev: old,
+				current: undefined,
+			});
+		} else if (old && value) {
+			// some kind of change
+			if (old.original.fileName !== value.original.fileName) {
+				this._onConfigDocumentChanged.fire({
+					type: "switched",
+					prev: old,
+					current: value,
+				});
+			} else {
+				this._onConfigDocumentChanged.fire({
+					type: "edited",
+					prev: old,
+					current: value,
+				});
+			}
+		}
 	}
-	private _onConfigDocumentChanged = new vscode.EventEmitter<
-		ConfigDocument | undefined
-	>();
-	public get onConfigDocumentChanged(): vscode.Event<
-		ConfigDocument | undefined
-	> {
+
+	private _onConfigDocumentChanged =
+		new vscode.EventEmitter<ConfigDocumentChange>();
+	public get onConfigDocumentChanged(): vscode.Event<ConfigDocumentChange> {
 		return this._onConfigDocumentChanged.event;
 	}
 

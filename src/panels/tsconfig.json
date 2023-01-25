@@ -1,0 +1,16 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"lib": [
+			"DOM",
+			"ES2020"
+		],
+		"esModuleInterop": true
+	},
+	"include": [
+		"./hooks/**/*.ts",
+		"./shared/**/*.ts",
+		"./**/*.tsx"
+	]
+}

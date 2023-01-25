@@ -5,11 +5,15 @@ import {
 	SymbolInformation,
 	TextDocument,
 } from "vscode-json-languageservice";
-import { My } from "./my";
 import {
 	getPropertyValueFromNode,
-	ImportSpecifier,
 	nodeIsPropertyNameOrValue,
+} from "./astUtils";
+import { My } from "./my";
+import {
+	getConfigFileDocumentSelector,
+	ImportSpecifier,
+	j2vRange,
 	parseImportSpecifier,
 	reactToActiveEditorChanges,
 	resolveTemplate,
@@ -44,6 +48,18 @@ export class ConfigDocument {
 	public getNodeFromSymbol(symbol: SymbolInformation): ASTNode | undefined {
 		return this.json.getNodeFromOffset(
 			this.text.offsetAt(symbol.location.range.start),
+		);
+	}
+
+	public getNodeAtPosition(position: vscode.Position): ASTNode | undefined {
+		return this.json.getNodeFromOffset(this.text.offsetAt(position));
+	}
+
+	public getSymbolsAtPosition(
+		position: vscode.Position,
+	): SymbolInformation[] {
+		return this.symbols.filter((s) =>
+			j2vRange(s.location.range).contains(position),
 		);
 	}
 }
@@ -105,16 +121,47 @@ export async function parseConfigDocument(
 
 export function enableConfigDocumentCache(my: My): void {
 	reactToActiveEditorChanges(my, async (editor) => {
-		if (!editor || !editor.document) {
+		// Don't try to parse unrelated documents
+		if (
+			!editor ||
+			!editor.document ||
+			editor.document.isUntitled ||
+			!vscode.languages.match(
+				getConfigFileDocumentSelector(my.workspace),
+				editor.document,
+			)
+		) {
 			my.configDocument = undefined;
 			return;
 		}
+
 		try {
 			my.configDocument = await parseConfigDocument(my, editor.document);
-			console.log("config document updated");
 		} catch (e) {
 			console.error(e);
 			my.configDocument = undefined;
 		}
 	});
 }
+
+export type ConfigDocumentChange =
+	| {
+			type: "opened";
+			prev: undefined;
+			current: ConfigDocument;
+	  }
+	| {
+			type: "switched";
+			prev: ConfigDocument;
+			current: ConfigDocument;
+	  }
+	| {
+			type: "edited";
+			prev: ConfigDocument;
+			current: ConfigDocument;
+	  }
+	| {
+			type: "closed";
+			prev: ConfigDocument;
+			current: undefined;
+	  };

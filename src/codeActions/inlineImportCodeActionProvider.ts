@@ -1,13 +1,15 @@
 import * as vscode from "vscode";
-import { My } from "../my";
 
 import {
-	getConfigFileDocumentSelector,
 	getPropertyNameFromNode,
 	getPropertyValueFromNode,
-	getTemplateDocumentSelector,
 	nodeIsPropertyNameOrValue,
 	rangeFromNode,
+} from "../astUtils";
+import { My } from "../my";
+import {
+	getConfigFileDocumentSelector,
+	getTemplateDocumentSelector,
 } from "../shared";
 
 export function register(my: My): vscode.Disposable {

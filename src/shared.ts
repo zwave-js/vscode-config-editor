@@ -1,13 +1,6 @@
-import * as JSON5 from "json5";
+import { parse as parseJsonC } from "jsonc-parser";
 import * as vscode from "vscode";
-import {
-	ASTNode,
-	Location,
-	ObjectASTNode,
-	Position,
-	PropertyASTNode,
-	Range,
-} from "vscode-json-languageservice";
+import { Position, Range } from "vscode-json-languageservice";
 import { readJsonWithTemplate } from "./JsonTemplate";
 import { My } from "./my";
 
@@ -70,7 +63,7 @@ export async function findConfigFiles(
 export async function readJSON(uri: vscode.Uri): Promise<Record<string, any>> {
 	const fileContentRaw = await vscode.workspace.fs.readFile(uri);
 	const fileContentString = Buffer.from(fileContentRaw).toString("utf8");
-	return JSON5.parse(fileContentString);
+	return parseJsonC(fileContentString);
 }
 
 export async function readTextFile(uri: vscode.Uri): Promise<string> {
@@ -203,76 +196,6 @@ export function getBlockRange(
 	);
 }
 
-export function nodeIsPropertyName(
-	node: ASTNode | undefined,
-): node is ASTNode & { parent: PropertyASTNode } {
-	return node?.parent?.type === "property" && node === node.parent.keyNode;
-}
-
-export function nodeIsPropertyValue(
-	node: ASTNode | undefined,
-): node is ASTNode & { parent: PropertyASTNode } {
-	return node?.parent?.type === "property" && node === node.parent.valueNode;
-}
-
-export function nodeIsPropertyNameOrValue(
-	node: ASTNode | undefined,
-): node is ASTNode & { parent: PropertyASTNode } {
-	return node?.parent?.type === "property";
-}
-
-export function getPropertyNameFromNode(
-	node: ASTNode & { parent: PropertyASTNode },
-): string {
-	return node.parent.keyNode.value;
-}
-
-export function getPropertyValueFromNode(
-	node: ASTNode & { parent: PropertyASTNode },
-): string | number | boolean | null | undefined {
-	return node.parent.valueNode?.value;
-}
-
-export function rangeFromNodeLocation(location: Location): vscode.Range {
-	return new vscode.Range(
-		location.range.start.line,
-		location.range.start.character,
-		location.range.end.line,
-		location.range.end.character,
-	);
-}
-
-export function rangeFromNode(
-	document: vscode.TextDocument,
-	node: ASTNode,
-): vscode.Range {
-	const start = document.positionAt(node.offset);
-	const end = document.positionAt(node.offset + node.length);
-	return new vscode.Range(start, end);
-}
-
-export function tryExpandPropertyRange(
-	document: vscode.TextDocument,
-	node: PropertyASTNode & { parent: ObjectASTNode },
-): vscode.Range {
-	const siblings = node.parent.properties;
-	if (siblings.length === 1) return rangeFromNode(document, node);
-	const index = siblings.indexOf(node);
-	if (index > 0) {
-		// Select everything from the end of the previous property to the end of this one
-		const start = document.positionAt(
-			siblings[index - 1].offset + siblings[index - 1].length,
-		);
-		const end = document.positionAt(node.offset + node.length);
-		return new vscode.Range(start, end);
-	} else {
-		// Select everything from the start of this property to the start of the next one
-		const start = document.positionAt(node.offset);
-		const end = document.positionAt(siblings[index + 1].offset);
-		return new vscode.Range(start, end);
-	}
-}
-
 export function reactToActiveEditorChanges(
 	{ context }: My,
 	handler: (editor: vscode.TextEditor | undefined) => void,
@@ -300,9 +223,7 @@ export function reactToActiveEditorChanges(
 	vscode.window.onDidChangeActiveTextEditor(
 		(editor) => {
 			activeEditor = editor;
-			if (editor) {
-				triggerHandler();
-			}
+			triggerHandler();
 		},
 		null,
 		context.subscriptions,
