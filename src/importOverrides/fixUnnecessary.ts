@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { tryExpandPropertyRange } from "../astUtils";
+import { ObjectPropertyASTNode, tryExpandPropertyRange } from "../astUtils";
 import {
 	DiagnosticType,
 	UnnecessaryImportOverrideDiagnostic,
@@ -58,11 +58,12 @@ export function register(my: My): vscode.Disposable[] {
 								my.configDocument?.json.getNodeFromOffset(
 									document.offsetAt(d.range.start),
 								)?.parent;
-							if (!nodeAtDiag) return;
+							if (!nodeAtDiag || nodeAtDiag.type !== "property")
+								return;
 							try {
 								const range = tryExpandPropertyRange(
 									document,
-									nodeAtDiag as any,
+									nodeAtDiag as ObjectPropertyASTNode,
 								);
 
 								const edit = new vscode.WorkspaceEdit();

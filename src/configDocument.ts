@@ -11,6 +11,7 @@ import {
 } from "./astUtils";
 import { My } from "./my";
 import {
+	getConfigFileDocumentSelector,
 	ImportSpecifier,
 	j2vRange,
 	parseImportSpecifier,
@@ -120,10 +121,20 @@ export async function parseConfigDocument(
 
 export function enableConfigDocumentCache(my: My): void {
 	reactToActiveEditorChanges(my, async (editor) => {
-		if (!editor || !editor.document || editor.document.isUntitled) {
+		// Don't try to parse unrelated documents
+		if (
+			!editor ||
+			!editor.document ||
+			editor.document.isUntitled ||
+			!vscode.languages.match(
+				getConfigFileDocumentSelector(my.workspace),
+				editor.document,
+			)
+		) {
 			my.configDocument = undefined;
 			return;
 		}
+
 		try {
 			my.configDocument = await parseConfigDocument(my, editor.document);
 		} catch (e) {
