@@ -108,10 +108,7 @@ export class PreviewPanel {
 
 	public static async render(extensionUri: vscode.Uri): Promise<void> {
 		if (PreviewPanel.currentPanel) {
-			PreviewPanel.currentPanel._panel.reveal(
-				vscode.ViewColumn.Beside,
-				true,
-			);
+			PreviewPanel.currentPanel._panel.reveal(undefined, true);
 		} else {
 			const panel = vscode.window.createWebviewPanel(
 				"config-preview",

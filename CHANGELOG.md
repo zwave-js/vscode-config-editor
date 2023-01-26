@@ -4,6 +4,9 @@
 -->
 
 # Changelog
+## __WORK IN PROGRESS__
+* Fix: Don't move config preview tab when there are multiple editors open side-by-side
+
 ## 0.0.10 (2023-01-25)
 * Fix: support override decorations for same-file `$import`s
 
