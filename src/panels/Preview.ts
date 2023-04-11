@@ -108,7 +108,15 @@ export class PreviewPanel {
 
 	public static async render(extensionUri: vscode.Uri): Promise<void> {
 		if (PreviewPanel.currentPanel) {
-			PreviewPanel.currentPanel._panel.reveal(undefined, true);
+			const editorColumn = vscode.window.activeTextEditor?.viewColumn;
+			const panelColumn = PreviewPanel.currentPanel._panel.viewColumn;
+			// Open the panel on the side of the current editor, and preserve its current location
+			// unless it would overlap with the editor.
+			const targetViewColumn =
+				editorColumn != undefined && editorColumn === panelColumn
+					? vscode.ViewColumn.Beside
+					: undefined;
+			PreviewPanel.currentPanel._panel.reveal(targetViewColumn, true);
 		} else {
 			const panel = vscode.window.createWebviewPanel(
 				"config-preview",

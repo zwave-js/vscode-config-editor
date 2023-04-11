@@ -4,6 +4,9 @@
 -->
 
 # Changelog
+## __WORK IN PROGRESS__
+* Fix: avoid overlapping the config preview with the active editor
+
 ## 0.0.11 (2023-01-26)
 * Fix: Don't move config preview tab when there are multiple editors open side-by-side
 
