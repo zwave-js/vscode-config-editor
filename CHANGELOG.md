@@ -4,7 +4,7 @@
 -->
 
 # Changelog
-## __WORK IN PROGRESS__
+## 0.0.12 (2023-04-11)
 * Fix: avoid overlapping the config preview with the active editor
 
 ## 0.0.11 (2023-01-26)
