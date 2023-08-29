@@ -14,7 +14,7 @@ import { enableConfigDocumentCache } from "./configDocument";
 import { registerDiagnosticsProvider } from "./diagnostics/provider";
 import { registerPreviewProvider } from "./interactivePreview/provider";
 import { My } from "./my";
-import { PreviewPanel } from "./panels/Preview";
+import { registerShowPreviewCommand } from "./panels/showPreviewCommand";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -34,14 +34,6 @@ export function activate(context: vscode.ExtensionContext): void {
 	enableConfigDocumentCache(my);
 
 	context.subscriptions.push(
-		my.onConfigDocumentChanged(async (change) => {
-			if (change.current) {
-				await PreviewPanel.render(context.extensionUri);
-			}
-		}),
-	);
-
-	context.subscriptions.push(
 		registerCompletions(my),
 		registerHover(my),
 		registerGoToDefinition(my),
@@ -49,6 +41,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		registerReferences(my),
 		registerDiagnosticsProvider(my),
 		...registerPreviewProvider(my),
+		...registerShowPreviewCommand(my),
 		...registerImportOverrides(my),
 	);
 }

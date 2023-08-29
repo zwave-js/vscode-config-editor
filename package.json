@@ -13,6 +13,24 @@
   "activationEvents": [
     "onLanguage:jsonc"
   ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "configEditor.open",
+        "title": "Open Z-Wave JS Config Editor",
+        "icon": "$(open-preview)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "when": "configEditor.hasConfigDocument",
+          "command": "configEditor.open",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
   "main": "./out/extension.js",
   "scripts": {
     "vscode:prepublish": "npm run package",

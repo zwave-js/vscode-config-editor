@@ -4,6 +4,9 @@
 -->
 
 # Changelog
+## __WORK IN PROGRESS__
+* Opening the preview is now done manually
+
 ## 0.0.12 (2023-04-11)
 * Fix: avoid overlapping the config preview with the active editor
 
