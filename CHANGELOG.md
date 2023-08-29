@@ -4,7 +4,7 @@
 -->
 
 # Changelog
-## __WORK IN PROGRESS__
+## 0.0.13 (2023-08-29)
 * Opening the preview is now done manually
 
 ## 0.0.12 (2023-04-11)
