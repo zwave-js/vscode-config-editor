@@ -96,3 +96,31 @@ export function findSurroundingParamDefinition(
 		node = node.parent;
 	}
 }
+
+export function getPropertyDefinitionFromObject(
+	node: ObjectASTNode,
+	propertyName: string,
+): PropertyASTNode | undefined {
+	return node.properties.find((p) => p.keyNode.value === propertyName);
+}
+
+export function getOptionsFromParamDefinition(
+	node: ObjectASTNode,
+): { label: string; value: number }[] | undefined {
+	const optionsArray = node.properties.find(
+		(p) => p.keyNode.value === "options",
+	);
+	if (optionsArray?.valueNode?.type !== "array") return;
+	const options = optionsArray.valueNode.items
+		.filter((i): i is ObjectASTNode => i.type === "object")
+		.map((obj) => ({
+			label: getPropertyDefinitionFromObject(obj, "label")?.valueNode
+				?.value,
+			value: getPropertyDefinitionFromObject(obj, "value")?.valueNode
+				?.value,
+		}))
+		.filter((o): o is { label: string; value: number } => {
+			return typeof o.label === "string" && typeof o.value === "number";
+		});
+	return options;
+}

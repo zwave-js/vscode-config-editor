@@ -4,6 +4,9 @@
 -->
 
 # Changelog
+## __WORK IN PROGRESS__
+* Suggest refactors when a matching enable/disable template is found
+
 ## 0.0.13 (2023-08-29)
 * Opening the preview is now done manually
 

@@ -4,6 +4,7 @@ import * as vscode from "vscode";
 import { getLanguageService as getJsonLanguageService } from "vscode-json-languageservice";
 
 import { register as registerInlineImportCodeAction } from "./codeActions/inlineImportCodeActionProvider";
+import { register as refactorToBaseEnableDisableCodeAction } from "./codeActions/refactorToBaseEnableDisableCodeActionProvider";
 import { register as registerCompletions } from "./importCompletionProvider";
 import { register as registerGoToDefinition } from "./importGoToDefinitionProvider";
 import { register as registerHover } from "./importHoverProvider";
@@ -38,6 +39,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		registerHover(my),
 		registerGoToDefinition(my),
 		registerInlineImportCodeAction(my),
+		refactorToBaseEnableDisableCodeAction(my),
 		registerReferences(my),
 		registerDiagnosticsProvider(my),
 		...registerPreviewProvider(my),

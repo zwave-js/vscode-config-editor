@@ -5,6 +5,7 @@ import { readJsonWithTemplate } from "./JsonTemplate";
 import { My } from "./my";
 
 export const configRoot = "packages/config/config/devices";
+export const masterTemplateImportPath = `~/templates/master_template.json`;
 
 export function getConfigFileDocumentSelector(
 	workspace: vscode.WorkspaceFolder,

@@ -8,6 +8,7 @@ import { My } from "./my";
 import {
 	formatTemplateDefinition,
 	getConfigFileDocumentSelector,
+	masterTemplateImportPath,
 	parseImportSpecifier,
 	resolveTemplateFile,
 } from "./shared";
@@ -16,7 +17,6 @@ const makeTemplateImportSpecifier = (filePath: string) => `${filePath}#\${0}`;
 const makeTemplateImport = (filePath: string) =>
 	`\\$import": "${makeTemplateImportSpecifier(filePath)}",`;
 
-const masterTemplateImportPath = `~/templates/master_template.json`;
 const masterTemplateImportSpecifier = makeTemplateImportSpecifier(
 	masterTemplateImportPath,
 );
