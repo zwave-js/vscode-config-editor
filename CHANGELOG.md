@@ -4,7 +4,7 @@
 -->
 
 # Changelog
-## __WORK IN PROGRESS__
+## 0.0.14 (2023-10-09)
 * Suggest refactors when a matching enable/disable template is found
 
 ## 0.0.13 (2023-08-29)
