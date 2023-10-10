@@ -5,6 +5,7 @@ import { getLanguageService as getJsonLanguageService } from "vscode-json-langua
 
 import { register as registerInlineImportCodeAction } from "./codeActions/inlineImportCodeActionProvider";
 import { register as refactorToBaseEnableDisableCodeAction } from "./codeActions/refactorToBaseEnableDisableCodeActionProvider";
+import { register as replaceOptionsWithMinMaxValueCodeAction } from "./codeActions/replaceOptionsWithMinMaxValueCodeActionProvider";
 import { register as registerCompletions } from "./importCompletionProvider";
 import { register as registerGoToDefinition } from "./importGoToDefinitionProvider";
 import { register as registerHover } from "./importHoverProvider";
@@ -40,6 +41,7 @@ export function activate(context: vscode.ExtensionContext): void {
 		registerGoToDefinition(my),
 		registerInlineImportCodeAction(my),
 		refactorToBaseEnableDisableCodeAction(my),
+		replaceOptionsWithMinMaxValueCodeAction(my),
 		registerReferences(my),
 		registerDiagnosticsProvider(my),
 		...registerPreviewProvider(my),

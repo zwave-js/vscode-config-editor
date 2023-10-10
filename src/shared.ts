@@ -250,3 +250,21 @@ export function j2vPos(position: Position): vscode.Position {
 export function j2vRange(range: Range): vscode.Range {
 	return new vscode.Range(j2vPos(range.start), j2vPos(range.end));
 }
+
+export const paramInfoPropertyOrder: string[] = [
+	"#",
+	"$if",
+	"$import",
+	"label",
+	"description",
+	"valueSize",
+	"unit",
+	"minValue",
+	"maxValue",
+	"defaultValue",
+	"unsigned",
+	"readOnly",
+	"writeOnly",
+	"allowManualEntry",
+	"options",
+];

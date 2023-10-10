@@ -4,6 +4,9 @@
 -->
 
 # Changelog
+## __WORK IN PROGRESS__
+* Add refactor to replace options with min/max value
+
 ## 0.0.14 (2023-10-09)
 * Suggest refactors when a matching enable/disable template is found
 
