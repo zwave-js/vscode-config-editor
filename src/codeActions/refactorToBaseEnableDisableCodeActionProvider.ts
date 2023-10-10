@@ -144,8 +144,14 @@ export function register(my: My): vscode.Disposable {
 					)
 					.join(" ");
 
+				const condition = getPropertyDefinitionFromObject(
+					paramDefinition,
+					"$if",
+				)?.valueNode?.value;
+
 				const refactored: Record<string, any> = {
 					"#": getPropertyValueFromNode(node),
+					$if: condition,
 					$import: `${masterTemplateImportPath}#${matchingTemplateSpecifier}`,
 					label: fixedLabel,
 					description,
