@@ -4,7 +4,7 @@
 -->
 
 # Changelog
-## __WORK IN PROGRESS__
+## 0.0.15 (2023-10-10)
 * Add refactor to replace options with min/max value
 * Fix: Enable/Disable template refactor preserves `$if` conditions
 
