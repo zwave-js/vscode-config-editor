@@ -43,7 +43,7 @@
     "release": "release-script"
   },
   "devDependencies": {
-    "@alcalzone/release-script": "~3.5.9",
+    "@alcalzone/release-script": "~3.7.0",
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
