@@ -2,6 +2,7 @@
 // This may require changes when upgrading to esbuild 0.17+
 
 const { build } = require("esbuild");
+const glob = require("glob");
 
 const baseConfig = {
 	bundle: true,
@@ -9,13 +10,15 @@ const baseConfig = {
 	sourcemap: process.env.NODE_ENV !== "production",
 };
 
+const testFiles = process.env.NODE_ENV !== "production" ? glob.sync("./src/test/**/*.ts") : [];
+
 const extensionConfig = {
 	...baseConfig,
 	platform: "node",
 	mainFields: ["module", "main"],
 	format: "cjs",
-	entryPoints: ["./src/extension.ts"],
-	outfile: "./out/extension.js",
+	entryPoints: ["./src/extension.ts", ...testFiles],
+	outdir: "./out",
 	external: ["vscode"],
 };
 
