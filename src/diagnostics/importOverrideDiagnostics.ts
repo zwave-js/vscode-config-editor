@@ -2,6 +2,7 @@ import { ASTNode, PropertyASTNode } from "vscode-json-languageservice";
 import {
 	getPropertyNameFromNode,
 	getPropertyValueFromNode,
+	isJSONDifferentToAST,
 	nodeIsPropertyNameOrValue,
 	rangeFromNode,
 } from "../astUtils";
@@ -62,14 +63,13 @@ export function generateImportOverrideDiagnostics(
 			const properties = s
 				.map((s) => config.getNodeFromSymbol(s))
 				.filter(nodeIsPropertyNameOrValue)
-				.map(
-					(n) =>
-						[
-							getPropertyNameFromNode(n),
-							getPropertyValueFromNode(n),
-							n,
-						] as const,
-				)
+				.map((n) => {
+					return [
+						getPropertyNameFromNode(n),
+						n.parent.valueNode,
+						n,
+					] as const;
+				})
 				.filter(([name]) => name in resolvedImport);
 			return [resolvedImport, properties] as const;
 		},
@@ -81,9 +81,8 @@ export function generateImportOverrideDiagnostics(
 
 		for (const [name, value, propNode] of properties) {
 			const originalValue = imp[name];
-			const isUnchanged = value === originalValue;
 
-			if (isUnchanged) {
+			if (value && !isJSONDifferentToAST(originalValue, value)) {
 				ret.push({
 					type: DiagnosticType.UnnecessaryImportOverride,
 					range: rangeFromNode(config.original, propNode.parent),
