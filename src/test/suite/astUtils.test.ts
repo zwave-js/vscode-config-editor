@@ -380,5 +380,30 @@ suite("astUtils", () => {
 
 			assert.strictEqual(result, true);
 		});
+
+		test("it returns true if the property is in AST but not in the JSON", () => {
+			const ast = {
+				type: "object",
+				properties: [
+					{
+						type: "property",
+						keyNode: {
+							type: "string",
+							value: "test",
+						},
+						valueNode: {
+							type: "number",
+							value: 5,
+						},
+					},
+				],
+			} as ObjectASTNode;
+
+			const json = undefined;
+
+			const result = isJSONDifferentToAST(json, ast);
+
+			assert.strictEqual(result, true);
+		});
 	});
 });

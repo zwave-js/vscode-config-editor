@@ -134,18 +134,18 @@ export function isJSONDifferentToAST(json: unknown, ast: ASTNode): boolean {
 				: "object"
 			: typeof json;
 
+	// If the property is undefined in the JSON but present in the AST it will return here
 	if (jsonType !== ast.type) {
 		return true;
 	}
 
 	if (isArrayASTNode(ast) && Array.isArray(json)) {
-		const arrayASTNode = ast;
-		if (arrayASTNode.items.length !== json.length) {
+		if (ast.items.length !== json.length) {
 			return true;
 		}
 
-		for (let i = 0; i < arrayASTNode.items.length; i++) {
-			if (isJSONDifferentToAST(json[i], arrayASTNode.items[i])) {
+		for (let i = 0; i < ast.items.length; i++) {
+			if (isJSONDifferentToAST(json[i], ast.items[i])) {
 				return true;
 			}
 		}
