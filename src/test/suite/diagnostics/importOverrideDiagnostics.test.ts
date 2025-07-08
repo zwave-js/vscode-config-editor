@@ -20,7 +20,7 @@ suite("importOverrideDiagnostics", () => {
 	}
 
 	suite("generateImportOverrideDiagnostics", () => {
-		test("returns an importOverride if a property has been overridden with a differnt value", async () => {
+		test("returns an importOverride if a property has been overridden with a different value", async () => {
 			const documentContent = {
 				test_template: {
 					test: 1,
@@ -80,7 +80,7 @@ suite("importOverrideDiagnostics", () => {
 			);
 		});
 
-		test("returns an unnescessaryImportOverride if a property has been overridden with the same value", async () => {
+		test("returns an unnecessaryImportOverride if a property has been overridden with the same value", async () => {
 			const documentContent = {
 				test_template: {
 					test: 1,
@@ -106,7 +106,7 @@ suite("importOverrideDiagnostics", () => {
 			);
 		});
 
-		test("returns an unnescessaryImportOverride if an options property has been overridden with the same value", async () => {
+		test("returns an unnecessaryImportOverride if an options property has been overridden with the same value", async () => {
 			const documentContent = {
 				test_template: {
 					options: [
