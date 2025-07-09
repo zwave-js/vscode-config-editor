@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import {
+	ArrayASTNode,
 	ASTNode,
 	Location,
 	ObjectASTNode,
@@ -123,4 +124,65 @@ export function getOptionsFromParamDefinition(
 			return typeof o.label === "string" && typeof o.value === "number";
 		});
 	return options;
+}
+
+export function isJSONDifferentToAST(json: unknown, ast: ASTNode): boolean {
+	const jsonType =
+		typeof json === "object"
+			? Array.isArray(json)
+				? "array"
+				: "object"
+			: typeof json;
+
+	// If the property is undefined in the JSON but present in the AST it will return here
+	if (jsonType !== ast.type) {
+		return true;
+	}
+
+	if (isArrayASTNode(ast) && Array.isArray(json)) {
+		if (ast.items.length !== json.length) {
+			return true;
+		}
+
+		for (let i = 0; i < ast.items.length; i++) {
+			if (isJSONDifferentToAST(json[i], ast.items[i])) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	if (isObjectASTNode(ast) && typeof json === "object" && json !== null) {
+		if (ast.properties.length !== Object.keys(json).length) {
+			return true;
+		}
+
+		for (const property of ast.properties) {
+			if (!property.valueNode) {
+				return true;
+			}
+
+			if (
+				isJSONDifferentToAST(
+					(json as Record<string, unknown>)[property.keyNode.value],
+					property.valueNode,
+				)
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	return ast.value !== json;
+}
+
+export function isArrayASTNode(node: ASTNode): node is ArrayASTNode {
+	return node.type === "array";
+}
+
+export function isObjectASTNode(node: ASTNode): node is ObjectASTNode {
+	return node.type === "object";
 }
