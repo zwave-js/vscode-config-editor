@@ -139,5 +139,32 @@ suite("importOverrideDiagnostics", () => {
 				"Incorrect Diagnostic Type",
 			);
 		});
+
+		test("returns an importOverride if a property is overwritten", async () => {
+			const documentContent = {
+				test_template: {
+					testProperty: 5,
+				},
+				paramInformation: [
+					{
+						"#": 1,
+						$import: "#test_template",
+						testProperty: 7,
+					},
+				],
+			};
+
+			const document = await setup(documentContent);
+
+			const result = generateImportOverrideDiagnostics(document) as any;
+
+			assert.strictEqual(result.length, 1);
+			assert.deepStrictEqual(
+				result[0].type,
+				DiagnosticType.ImportOverride,
+			);
+			assert.deepStrictEqual(result[0].value, 7);
+			assert.deepStrictEqual(result[0].originalValue, 5);
+		});
 	});
 });

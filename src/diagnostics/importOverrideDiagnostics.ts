@@ -79,10 +79,10 @@ export function generateImportOverrideDiagnostics(
 		if (!block) continue;
 		const [imp, properties] = block;
 
-		for (const [name, value, propNode] of properties) {
+		for (const [name, valueNode, propNode] of properties) {
 			const originalValue = imp[name];
 
-			if (value && !isJSONDifferentToAST(originalValue, value)) {
+			if (valueNode && !isJSONDifferentToAST(originalValue, valueNode)) {
 				ret.push({
 					type: DiagnosticType.UnnecessaryImportOverride,
 					range: rangeFromNode(config.original, propNode.parent),
@@ -91,7 +91,7 @@ export function generateImportOverrideDiagnostics(
 				ret.push({
 					type: DiagnosticType.ImportOverride,
 					range: rangeFromNode(config.original, propNode),
-					value,
+					value: getPropertyValueFromNode(propNode),
 					originalValue,
 				});
 			}
