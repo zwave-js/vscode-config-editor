@@ -265,6 +265,7 @@ export const paramInfoPropertyOrder: string[] = [
 	"unsigned",
 	"readOnly",
 	"writeOnly",
+	"destructive",
 	"allowManualEntry",
 	"options",
 ];
