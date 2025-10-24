@@ -198,7 +198,7 @@ export function register({ workspace, ls }: My): vscode.Disposable {
 								workspace,
 								uri.fsPath,
 							);
-						} catch (e) {
+						} catch {
 							return;
 						}
 

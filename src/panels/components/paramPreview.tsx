@@ -7,7 +7,7 @@ export type ParamPreview = Pick<
 	"param" | "overwrittenProperties"
 >;
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ParamPreviewProps extends Partial<ParamPreview> {}
 
 const valueBitMaskRegex = /^(\d+)(?:\[(0x[0-9a-fA-F]+)\])?$/;

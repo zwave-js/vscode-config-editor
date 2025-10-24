@@ -62,13 +62,13 @@ export function register(my: My): vscode.Disposable {
 			const hoverMessage = isPrimitive
 				? new vscode.MarkdownString(
 						`This property overrides value \`${diag.originalValue}\` from the imported template.`,
-				  )
+					)
 				: new vscode.MarkdownString(
 						`This property overrides this value from the imported template:
 \`\`\`
 ${JSON.stringify(diag.originalValue, null, 2)}
 \`\`\``,
-				  );
+					);
 
 			valueDecorations.push({ range });
 			lineDecorations.push({ range, hoverMessage });

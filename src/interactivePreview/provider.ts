@@ -27,7 +27,7 @@ async function showInteractivePreview(my: My, position: vscode.Position) {
 			[],
 			new Map(),
 		);
-	} catch (e) {
+	} catch {
 		// Probably an incorrect definition
 		resolved = record;
 	}

@@ -37,7 +37,7 @@
     "package": "NODE_ENV=production node ./esbuild.js",
     "watch": "node ./esbuild.js --watch",
     "pretest": "npm run build && npm run lint",
-    "lint": "eslint src --ext ts",
+    "lint": "eslint .",
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
@@ -48,22 +48,21 @@
     "@types/react-dom": "^18.0.10",
     "@types/vscode": "^1.74.0",
     "@types/vscode-webview": "^1.57.1",
-    "@typescript-eslint/eslint-plugin": "^5.45.0",
-    "@typescript-eslint/parser": "^5.45.0",
     "@vscode/test-electron": "^2.2.0",
     "@vscode/webview-ui-toolkit": "^1.2.1",
     "esbuild": "^0.16.17",
-    "eslint": "^8.28.0",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-prettier": "^4.2.1",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "glob": "^8.0.3",
     "jsonc-parser": "^3.2.0",
     "mocha": "^10.1.0",
-    "prettier": "^2.8.3",
-    "prettier-plugin-organize-imports": "^3.2.2",
+    "prettier": "^3.6.2",
+    "prettier-plugin-organize-imports": "^4.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.3",
+    "typescript-eslint": "^8.46.2"
   },
   "dependencies": {
     "alcalzone-shared": "^4.0.8",

@@ -48,10 +48,7 @@ export function register(my: My): vscode.Disposable {
 				// We can offer the refactor, if ...
 				// ...there isn't already an import
 				if (
-					!!getPropertyDefinitionFromObject(
-						paramDefinition,
-						"$import",
-					)
+					getPropertyDefinitionFromObject(paramDefinition, "$import")
 				) {
 					return;
 				}
