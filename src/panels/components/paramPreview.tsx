@@ -103,6 +103,9 @@ export const ParamPreview: React.FC<ParamPreviewProps> = ({
 							{param.minValue} to {param.maxValue}
 							{param.unit && ` ${param.unit}`}, default{" "}
 							{param.defaultValue}
+							{param.recommendedValue != undefined && (
+								<>, recommended {param.recommendedValue}</>
+							)}
 						</span>
 					</>
 				)}
@@ -119,6 +122,7 @@ export const ParamPreview: React.FC<ParamPreviewProps> = ({
 						<ParamOptions
 							options={param.options ?? []}
 							defaultValue={param.defaultValue}
+							recommendedValue={param.recommendedValue}
 						/>
 					</>
 				)}

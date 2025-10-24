@@ -115,3 +115,7 @@ table.param-preview__options {
 	text-align: center;
 	padding: 0;
 }
+
+.param-preview__options td.default {
+	text-decoration: underline;
+}

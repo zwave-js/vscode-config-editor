@@ -262,6 +262,7 @@ export const paramInfoPropertyOrder: string[] = [
 	"minValue",
 	"maxValue",
 	"defaultValue",
+	"recommendedValue",
 	"unsigned",
 	"readOnly",
 	"writeOnly",

@@ -88,6 +88,10 @@ export function register(my: My): vscode.Disposable {
 					paramDefinition,
 					"defaultValue",
 				)?.valueNode?.value;
+				const recommendedValue = getPropertyDefinitionFromObject(
+					paramDefinition,
+					"recommendedValue",
+				)?.valueNode?.value;
 
 				// Try to find a matching template in the master template
 				const disableOptionValue = options.find((o) =>
@@ -131,6 +135,8 @@ export function register(my: My): vscode.Disposable {
 				if (!matchingTemplateSpecifier || !matchingTemplate) return;
 
 				const templateDefaultValue = matchingTemplate.defaultValue;
+				const templateRecommendedValue =
+					matchingTemplate.recommendedValue;
 				const templateValueSize = matchingTemplate.valueSize;
 
 				// Remove occurences of enable/disable from the param label
@@ -156,12 +162,15 @@ export function register(my: My): vscode.Disposable {
 					label: fixedLabel,
 					description,
 				};
-				// Preserve overridden valueSize/default
+				// Preserve overridden valueSize/default/recommended
 				if (templateValueSize !== valueSize) {
 					refactored.valueSize = valueSize;
 				}
 				if (templateDefaultValue !== defaultValue) {
 					refactored.defaultValue = defaultValue;
+				}
+				if (templateRecommendedValue !== recommendedValue) {
+					refactored.recommendedValue = recommendedValue;
 				}
 
 				const refactorRange = rangeFromNode(document, paramDefinition);

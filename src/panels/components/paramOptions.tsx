@@ -5,11 +5,13 @@ export interface ParamOptionsProps {
 		value: number;
 	}[];
 	defaultValue: number;
+	recommendedValue?: number;
 }
 
 export const ParamOptions: React.FC<ParamOptionsProps> = ({
 	options,
 	defaultValue,
+	recommendedValue,
 }) => {
 	if (!options.length) {
 		return (
@@ -34,9 +36,21 @@ export const ParamOptions: React.FC<ParamOptionsProps> = ({
 			<tbody>
 				{options.map((option) => (
 					<tr key={option.label}>
-						<td>{option.value === defaultValue && "★"}</td>
-						<td>{option.label}</td>
-						<td>{option.value}</td>
+						<td>{option.value === recommendedValue && "★"}</td>
+						<td
+							className={
+								option.value === defaultValue ? "default" : ""
+							}
+						>
+							{option.label}
+						</td>
+						<td
+							className={
+								option.value === defaultValue ? "default" : ""
+							}
+						>
+							{option.value}
+						</td>
 						{hasCondition && (
 							<td>{option.$if && <code>{option.$if}</code>}</td>
 						)}
