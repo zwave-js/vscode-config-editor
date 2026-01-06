@@ -49,6 +49,10 @@
 	justify-content: center;
 }
 
+.param-preview__header.hidden {
+	color: var(--vscode-disabledForeground)
+}
+
 .param-preview__header__label {
 	font-size: 1.25rem;
 	font-weight: bold;

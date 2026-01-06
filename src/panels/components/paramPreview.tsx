@@ -22,6 +22,7 @@ export const ParamPreview: React.FC<ParamPreviewProps> = ({
 
 	const read = param.writeOnly !== true;
 	const write = param.readOnly !== true;
+	const hidden = param.hidden === true;
 
 	let paramNo: string = param["#"];
 	let bitMask: string | undefined;
@@ -36,15 +37,23 @@ export const ParamPreview: React.FC<ParamPreviewProps> = ({
 
 	const unresolvedImport: string | undefined = param.$import;
 
+	const headerClass = "param-preview__header" + (hidden ? " hidden" : "");
+
 	return (
 		<div className="param-preview">
 			<div className="param-preview__number">
 				<span className="number">#{paramNo}</span>
 				{bitMask && <VSCodeTag className="bitmask">partial</VSCodeTag>}
 			</div>
-			<div className="param-preview__header">
+			<div className={headerClass}>
 				<div className="param-preview__header__label">
 					{param.label}
+					{hidden && (
+						<>
+							{" "}
+							<i>(hidden)</i>
+						</>
+					)}
 				</div>
 				{param.description && (
 					<div className="param-preview__header__description">
