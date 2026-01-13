@@ -39,6 +39,26 @@ export const ParamPreview: React.FC<ParamPreviewProps> = ({
 
 	const headerClass = "param-preview__header" + (hidden ? " hidden" : "");
 
+	// Process allowed field for display
+	let allowedDisplay: string | null = null;
+	if (param.allowed) {
+		const parts: string[] = [];
+		for (const def of param.allowed) {
+			if ("value" in def) {
+				parts.push(String(def.value));
+			} else if ("range" in def && Array.isArray(def.range)) {
+				const [from, to] = def.range;
+				const { step } = def;
+				let rangeText = `${from} to ${to}`;
+				if (step && step !== 1) {
+					rangeText += ` (step ${step})`;
+				}
+				parts.push(rangeText);
+			}
+		}
+		allowedDisplay = parts.join(", ");
+	}
+
 	return (
 		<div className="param-preview">
 			<div className="param-preview__number">
@@ -104,19 +124,33 @@ export const ParamPreview: React.FC<ParamPreviewProps> = ({
 					{param.unsigned ? " (unsigned)" : " (signed)"}
 				</span>
 
-				{/* Min/Max/Default */}
-				{param.allowManualEntry !== false && (
+				{/* Min/Max/Default or Allowed */}
+				{allowedDisplay ? (
 					<>
-						<span>Range</span>
+						<span>Allowed values</span>
 						<span>
-							{param.minValue} to {param.maxValue}
-							{param.unit && ` ${param.unit}`}, default{" "}
+							{allowedDisplay}
+							{param.unit && ` ${param.unit}`} · default{" "}
 							{param.defaultValue}
 							{param.recommendedValue != undefined && (
-								<>, recommended {param.recommendedValue}</>
+								<> · recommended {param.recommendedValue}</>
 							)}
 						</span>
 					</>
+				) : (
+					param.allowManualEntry !== false && (
+						<>
+							<span>Range</span>
+							<span>
+								{param.minValue} to {param.maxValue}
+								{param.unit && ` ${param.unit}`} · default{" "}
+								{param.defaultValue}
+								{param.recommendedValue != undefined && (
+									<> · recommended {param.recommendedValue}</>
+								)}
+							</span>
+						</>
+					)
 				)}
 
 				{/* Options */}

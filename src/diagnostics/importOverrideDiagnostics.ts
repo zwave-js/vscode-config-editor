@@ -98,5 +98,81 @@ export function generateImportOverrideDiagnostics(
 		}
 	}
 
+	// Check for allowed/minValue-maxValue conflicts across import boundaries
+	const allowedAndMinMaxConflicts = importsAndSymbolsAfter
+		.map(([imp, s]) => {
+			const importSpecifier = getPropertyValueFromNode(imp);
+			if (typeof importSpecifier !== "string") return undefined;
+			const resolvedImport = config.templates[importSpecifier];
+			if (!resolvedImport) return undefined;
+
+			const properties = s
+				.map((s) => config.getNodeFromSymbol(s))
+				.filter(nodeIsPropertyNameOrValue)
+				.map((n) => {
+					return [
+						getPropertyNameFromNode(n),
+						n.parent.valueNode,
+						n,
+					] as const;
+				})
+				.filter(([name]) => {
+					if (
+						name === "allowed" &&
+						("minValue" in resolvedImport ||
+							"maxValue" in resolvedImport)
+					) {
+						return true;
+					}
+
+					if (
+						(name === "minValue" || name === "maxValue") &&
+						"allowed" in resolvedImport
+					) {
+						return true;
+					}
+
+					return false;
+				});
+			return [resolvedImport, properties] as const;
+		})
+		.filter(
+			(conflict) =>
+				conflict && conflict[1] != undefined && conflict[1].length > 0,
+		);
+
+	for (const block of allowedAndMinMaxConflicts) {
+		if (!block) continue;
+		const [imp, properties] = block;
+
+		for (const [name, , propNode] of properties) {
+			const templateHasMinMax = "minValue" in imp || "maxValue" in imp;
+			const templateHasAllowed = "allowed" in imp;
+
+			// Template has minValue/maxValue, local has allowed -> error on allowed
+			if (templateHasMinMax && name === "allowed") {
+				ret.push({
+					type: DiagnosticType.AllowedMinMaxConflict,
+					range: rangeFromNode(config.original, propNode),
+					localHasAllowed: true,
+					templateHasAllowed: false,
+				});
+			}
+
+			// Template has allowed, local has minValue/maxValue -> error on minValue/maxValue
+			if (
+				templateHasAllowed &&
+				(name === "minValue" || name === "maxValue")
+			) {
+				ret.push({
+					type: DiagnosticType.AllowedMinMaxConflict,
+					range: rangeFromNode(config.original, propNode),
+					localHasAllowed: false,
+					templateHasAllowed: true,
+				});
+			}
+		}
+	}
+
 	return ret;
 }

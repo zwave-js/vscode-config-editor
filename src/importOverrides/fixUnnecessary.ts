@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { ObjectPropertyASTNode, tryExpandPropertyRange } from "../astUtils";
 import {
+	AllowedMinMaxConflictDiagnostic,
 	DiagnosticType,
 	UnnecessaryImportOverrideDiagnostic,
 } from "../diagnostics/diagnostics";
@@ -26,15 +27,36 @@ export function register(my: My): vscode.Disposable[] {
 					d.type === DiagnosticType.UnnecessaryImportOverride,
 			);
 
-			const vscodeDiags = unnecessaryOverrideDiagnostics.map((diag) => {
-				const ret = new vscode.Diagnostic(
+			const allowedMinMaxConflictDiagnostics = diag.filter(
+				(d): d is AllowedMinMaxConflictDiagnostic =>
+					d.type === DiagnosticType.AllowedMinMaxConflict,
+			);
+
+			const vscodeDiags: vscode.Diagnostic[] = [];
+
+			for (const diag of unnecessaryOverrideDiagnostics) {
+				const d = new vscode.Diagnostic(
 					diag.range,
 					"Unnecessary override of imported template property",
 					vscode.DiagnosticSeverity.Warning,
 				);
-				ret.code = DiagnosticType.UnnecessaryImportOverride;
-				return ret;
-			});
+				d.code = DiagnosticType.UnnecessaryImportOverride;
+				vscodeDiags.push(d);
+			}
+
+			for (const diag of allowedMinMaxConflictDiagnostics) {
+				const message = diag.localHasAllowed
+					? `The "allowed" field cannot be used when the imported template defines "minValue" or "maxValue".`
+					: `"minValue"/"maxValue" cannot be used when the imported template defines "allowed".`;
+				const d = new vscode.Diagnostic(
+					diag.range,
+					message,
+					vscode.DiagnosticSeverity.Error,
+				);
+				d.code = DiagnosticType.AllowedMinMaxConflict;
+				vscodeDiags.push(d);
+			}
+
 			importDiagnostics.set(activeEditor.document.uri, vscodeDiags);
 		}),
 	);

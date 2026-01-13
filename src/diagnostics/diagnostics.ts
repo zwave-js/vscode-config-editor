@@ -3,11 +3,13 @@ import * as vscode from "vscode";
 export enum DiagnosticType {
 	UnnecessaryImportOverride,
 	ImportOverride,
+	AllowedMinMaxConflict,
 }
 
 export type Diagnostic =
 	| UnnecessaryImportOverrideDiagnostic
-	| ImportOverrideDiagnostic;
+	| ImportOverrideDiagnostic
+	| AllowedMinMaxConflictDiagnostic;
 
 export interface UnnecessaryImportOverrideDiagnostic {
 	type: DiagnosticType.UnnecessaryImportOverride;
@@ -19,4 +21,11 @@ export interface ImportOverrideDiagnostic {
 	range: vscode.Range;
 	value: any;
 	originalValue: any;
+}
+
+export interface AllowedMinMaxConflictDiagnostic {
+	type: DiagnosticType.AllowedMinMaxConflict;
+	range: vscode.Range;
+	localHasAllowed: boolean;
+	templateHasAllowed: boolean;
 }

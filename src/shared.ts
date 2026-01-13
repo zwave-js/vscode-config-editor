@@ -259,6 +259,7 @@ export const paramInfoPropertyOrder: string[] = [
 	"description",
 	"valueSize",
 	"unit",
+	"allowed",
 	"minValue",
 	"maxValue",
 	"defaultValue",
